@@ -1,0 +1,567 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>ZeroG Element Tracker — Viewer</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Share+Tech+Mono&family=Exo+2:wght@300;400;600;700&display=swap');
+
+body.theme-deepspace{--bg:#070b14;--bg2:#0d1220;--card:#0f1726;--border:#1a2840;--border2:#223050;--accent:#2979c8;--accent2:#5eb8ff;--ok:#3dffa0;--warn:#ffb84d;--err:#ff5f5f;--text:#ccdaee;--dim:#3d5070;--dim2:#5a7090;--new:#ffe066;--star:#ffffff;}
+body.theme-nebula{--bg:#0d0714;--bg2:#140d20;--card:#170f26;--border:#2a1840;--border2:#3a2250;--accent:#8a29c8;--accent2:#c87eff;--ok:#ff7ef0;--warn:#ffb84d;--err:#ff5f5f;--text:#e0ccee;--dim:#503d70;--dim2:#7a5a90;--new:#ffe066;--star:#ffccff;}
+
+:root{--mono:'Share Tech Mono',monospace;--sans:'Exo 2',sans-serif;}
+*{box-sizing:border-box;margin:0;padding:0;}
+body{color:var(--text);font-family:var(--sans);min-height:100vh;padding:28px 24px;position:relative;overflow-x:hidden;background:var(--bg);}
+
+#starfield{position:fixed;top:0;left:0;width:100%;height:100%;pointer-events:none;z-index:0;overflow:hidden;}
+.star{position:absolute;border-radius:50%;background:var(--star);animation:twinkle var(--d,3s) ease-in-out infinite var(--delay,0s);}
+@keyframes twinkle{0%,100%{opacity:var(--min-op,.1);transform:scale(1);}50%{opacity:var(--max-op,.8);transform:scale(1.2);}}
+.star.shooting{width:2px!important;height:2px!important;animation:shoot var(--d,4s) linear infinite var(--delay,0s);opacity:0;}
+@keyframes shoot{0%{opacity:0;transform:translate(0,0);}10%{opacity:1;}100%{opacity:0;transform:translate(calc(var(--dx)*1px),calc(var(--dy)*1px));}}
+
+.header,.card,#planetSummary,.filters-bar,#resultsCard{position:relative;z-index:1;}.filters-bar{z-index:10;}
+
+.header{margin-bottom:28px;display:flex;align-items:flex-start;justify-content:space-between;flex-wrap:wrap;gap:12px;}
+.header-left h1{font-size:1.6rem;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:var(--accent2);font-family:var(--mono);}
+.header-left h1 span{color:var(--dim2);}
+.header-meta{font-size:.75rem;color:var(--dim2);margin-top:5px;font-family:var(--mono);}
+.header-meta .ok{color:var(--ok);}.header-meta .dim{color:var(--dim);}.header-meta .new{color:var(--new);}
+.theme-switcher{display:flex;gap:6px;align-items:center;}
+.theme-btn{width:22px;height:22px;border-radius:50%;border:2px solid transparent;cursor:pointer;transition:all .15s;padding:0;}
+.theme-btn:hover,.theme-btn.active{border-color:var(--accent2);transform:scale(1.2);}
+
+.card{background:var(--card);border:1px solid var(--border);border-radius:10px;padding:20px;margin-bottom:18px;position:relative;overflow:hidden;}
+.card::before{content:'';position:absolute;top:0;left:0;right:0;height:1px;background:linear-gradient(90deg,transparent,var(--border2),transparent);}
+
+.tabs{display:flex;gap:0;margin-bottom:18px;border-bottom:1px solid var(--border);}
+.tab-btn{padding:10px 20px;border:none;background:transparent;color:var(--dim2);cursor:pointer;font-family:var(--sans);font-weight:600;font-size:.8rem;text-transform:uppercase;letter-spacing:.08em;border-bottom:2px solid transparent;margin-bottom:-1px;transition:all .15s;}
+.tab-btn:hover{color:var(--accent2);}.tab-btn.active{color:var(--accent2);border-bottom-color:var(--accent);}
+
+label{display:block;font-size:.75rem;color:var(--dim2);margin-bottom:5px;text-transform:uppercase;letter-spacing:.06em;}
+input[type=text],input[type=password],textarea,select{width:100%;background:var(--bg2);border:1px solid var(--border);border-radius:6px;color:var(--text);padding:9px 12px;font-size:.85rem;font-family:var(--sans);outline:none;transition:border-color .2s;}
+input:focus,textarea:focus,select:focus{border-color:var(--accent);}
+.input-group{margin-bottom:14px;}
+
+.btn{padding:9px 20px;border-radius:7px;border:none;font-size:.82rem;font-weight:700;cursor:pointer;text-transform:uppercase;letter-spacing:.06em;transition:all .15s;font-family:var(--sans);}
+.btn-primary{background:linear-gradient(135deg,var(--accent),var(--accent2));color:var(--bg);}
+.btn-primary:hover{transform:translateY(-1px);box-shadow:0 4px 16px rgba(0,0,0,.4);}
+.btn-ghost{background:var(--bg2);color:var(--accent2);border:1px solid var(--border2);}
+.btn-ghost:hover{border-color:var(--accent);}
+.btn-danger{background:#2a1010;color:var(--err);border:1px solid #601e1e;}
+.btn-danger:hover{background:#3a1515;}
+.btn-sm{padding:7px 13px;font-size:.75rem;}
+
+.warn-box{border-radius:6px;padding:9px 13px;font-size:.78rem;margin-bottom:14px;}
+.log-box{margin-top:12px;background:var(--bg);border:1px solid var(--border);border-radius:6px;padding:10px 14px;max-height:130px;overflow-y:auto;font-family:var(--mono);font-size:.72rem;}
+.log-line{margin-bottom:3px;}
+.log-ok{color:var(--ok);}.log-err{color:var(--err);}.log-info{color:var(--dim2);}
+
+.drop-zone{border:2px dashed var(--border2);border-radius:8px;padding:36px;text-align:center;cursor:pointer;transition:all .2s;margin-bottom:14px;}
+.drop-zone:hover,.drop-zone.over{border-color:var(--accent);background:var(--border);}
+.drop-zone .icon{font-size:2.2rem;margin-bottom:8px;}
+.drop-zone p{color:var(--dim2);font-size:.85rem;}.drop-zone small{color:var(--dim);font-size:.73rem;}
+
+.filters-bar{display:flex;gap:10px;flex-wrap:wrap;align-items:center;margin-bottom:16px;}
+.filters-bar select{width:auto;min-width:140px;}
+.filters-bar .spacer{flex:1;}
+
+.rarity-filter{display:flex;gap:8px;flex-wrap:wrap;align-items:center;}
+.rarity-check{display:flex;align-items:center;gap:6px;padding:5px 12px;border-radius:20px;border:1px solid var(--border2);background:var(--bg2);cursor:pointer;user-select:none;transition:all .15s;font-size:.78rem;font-weight:600;opacity:.45;}
+.rarity-check:hover{border-color:var(--accent);}
+.rarity-check.on{opacity:1;}
+.rarity-check.on.rc-common{background:#0d200d;border-color:#2a6a2a;color:#7aff7a;}
+.rarity-check.on.rc-uncommon{background:#0d1a2a;border-color:#1a4a8a;color:#60c8ff;}
+.rarity-check.on.rc-rare{background:#1a0d2a;border-color:#5a1a8a;color:#c87eff;}
+.rarity-check.on.rc-epic{background:#2a1a0d;border-color:#8a5a1a;color:#ffb84d;}
+.rarity-dot{width:8px;height:8px;border-radius:50%;flex-shrink:0;}
+
+.el-search-wrap{position:relative;min-width:200px;}
+.el-search-wrap input{padding-right:28px;}
+.el-search-wrap .clear-x{position:absolute;right:8px;top:50%;transform:translateY(-50%);background:none;border:none;color:var(--dim2);cursor:pointer;font-size:1rem;line-height:1;padding:0;}
+.el-dropdown{position:absolute;top:100%;left:0;right:0;background:var(--card);border:1px solid var(--border2);border-radius:6px;max-height:200px;overflow-y:auto;z-index:1000;display:none;}
+.el-dropdown.open{display:block;}
+.el-dropdown-item{padding:7px 12px;cursor:pointer;font-size:.82rem;display:flex;align-items:center;gap:8px;}
+.el-dropdown-item:hover{background:var(--border);}
+
+#planetSummary{margin-bottom:18px;position:relative;z-index:1;}
+.summary-heading{font-size:.75rem;text-transform:uppercase;letter-spacing:.1em;color:var(--dim2);font-family:var(--mono);margin-bottom:12px;}
+.planet-cards{display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:10px;}
+.planet-card{background:var(--card);border:1px solid var(--border);border-radius:8px;padding:12px 14px;transition:border-color .15s;}
+.planet-card.has-results:hover{border-color:var(--border2);}
+.planet-card.no-results{opacity:.4;}
+.planet-card-header{display:flex;align-items:center;justify-content:space-between;gap:8px;margin-bottom:6px;}
+.planet-card-name{font-weight:700;color:var(--accent2);font-size:.85rem;}
+.planet-card-meta{font-size:.68rem;color:var(--dim2);font-family:var(--mono);}
+.planet-card-right{display:flex;align-items:center;gap:4px;flex-shrink:0;}
+.planet-badge{padding:2px 7px;border-radius:10px;font-size:.68rem;font-weight:700;font-family:var(--mono);}
+.badge-new{background:rgba(255,224,102,.1);border:1px solid rgba(255,224,102,.4);color:var(--new);}
+.badge-rare{background:rgba(180,80,255,.1);border:1px solid rgba(180,80,255,.35);color:#c87eff;}
+.badge-epic{background:rgba(255,140,40,.1);border:1px solid rgba(255,140,40,.35);color:#ffb84d;}
+.planet-card-pills{display:flex;flex-wrap:wrap;gap:3px;}
+.planet-card-empty{font-size:.72rem;color:var(--dim);font-family:var(--mono);font-style:italic;}
+
+.result-tabs{display:flex;border-bottom:1px solid var(--border);}
+.result-tab{padding:12px 22px;border:none;background:transparent;cursor:pointer;font-family:var(--sans);font-weight:700;font-size:.8rem;text-transform:uppercase;letter-spacing:.07em;color:var(--dim2);border-bottom:2px solid transparent;margin-bottom:-1px;transition:all .15s;}
+.result-tab:hover{color:var(--accent2);}.result-tab.active{color:var(--accent2);border-bottom-color:var(--accent);}
+.result-tab .count{display:inline-block;padding:1px 7px;border-radius:10px;font-size:.7rem;font-weight:700;margin-left:6px;background:var(--bg2);border:1px solid var(--border2);color:var(--accent2);}
+.result-tab.active .count{background:var(--border);}
+
+.table-wrap{overflow-x:auto;overflow-y:auto;max-height:520px;}
+table{width:100%;border-collapse:collapse;font-size:.88rem;}
+thead tr{background:var(--bg2);}
+thead th{position:sticky;top:0;z-index:2;background:var(--bg2);}
+th{padding:10px 12px;text-align:left;color:var(--accent);font-size:.7rem;text-transform:uppercase;letter-spacing:.1em;border-bottom:1px solid var(--border);font-family:var(--mono);}
+td{padding:11px 13px;border-bottom:1px solid var(--border);vertical-align:middle;}
+tr:hover td{background:rgba(255,255,255,.02);}
+tr.fully-mined-row td{opacity:.35;}
+tr.new-row td{background:rgba(255,224,102,.03);}
+tr.new-row td:first-child{border-left:2px solid var(--new);}
+.planet-name{color:var(--accent2);font-weight:700;}
+.planet-id{font-size:.7rem;color:var(--dim);font-family:var(--mono);}
+.site-name{font-family:var(--mono);font-size:.82rem;color:var(--text);}
+.new-badge{display:inline-block;padding:1px 6px;border-radius:8px;font-size:.65rem;font-weight:700;background:rgba(255,224,102,.15);border:1px solid rgba(255,224,102,.5);color:var(--new);margin-left:6px;vertical-align:middle;font-family:var(--mono);}
+
+.pill{display:inline-block;padding:2px 8px;margin:2px;border-radius:12px;font-size:.72rem;font-weight:700;font-family:var(--mono);cursor:pointer;transition:all .12s;}
+.pill:hover{transform:scale(1.05);}
+.pill.el-mined{text-decoration:line-through;opacity:.3;}
+.pill-common{background:rgba(100,220,100,.1);border:1px solid rgba(100,220,100,.3);color:#7aff7a;}
+.pill-uncommon{background:rgba(60,160,255,.1);border:1px solid rgba(60,160,255,.3);color:#60c8ff;}
+.pill-rare{background:rgba(180,80,255,.1);border:1px solid rgba(180,80,255,.3);color:#c87eff;}
+.pill-epic{background:rgba(255,140,40,.1);border:1px solid rgba(255,140,40,.3);color:#ffb84d;}
+.pill-glow{animation:pillglow 2s ease-in-out infinite;}
+@keyframes pillglow{0%,100%{box-shadow:0 0 5px currentColor,0 0 10px currentColor;}50%{box-shadow:0 0 10px currentColor,0 0 20px currentColor,0 0 30px currentColor;}}
+
+.date-cell{font-size:.72rem;color:var(--dim2);font-family:var(--mono);white-space:nowrap;}
+.action-btn{padding:5px 11px;border-radius:5px;cursor:pointer;font-size:.75rem;font-weight:700;border:1px solid;transition:all .12s;font-family:var(--sans);}
+.action-del{border-color:#601e1e;background:#2a1010;color:var(--err);}.action-empty{border-color:#3a4a1a;background:#1a2010;color:var(--ok);margin:1px;}
+.action-del:hover{background:#3a1515;}
+
+.empty{text-align:center;padding:56px 20px;color:var(--dim);}
+.empty .icon{font-size:3rem;margin-bottom:14px;}
+.empty p{font-size:.9rem;color:var(--dim2);}
+.console-script-area{width:100%;height:200px;background:var(--bg);border:1px solid var(--border);border-radius:6px;color:var(--accent2);padding:12px;font-family:var(--mono);font-size:.72rem;resize:vertical;}
+.copy-strip{display:flex;justify-content:flex-end;margin-top:8px;}
+.result-stats{margin-left:auto;display:flex;align-items:center;gap:8px;padding-right:16px;flex-shrink:0;}
+.rstat{display:flex;align-items:baseline;gap:4px;}
+.rstat-num{font-weight:700;font-family:var(--sans);font-size:.92rem;}
+.rstat-label{font-size:.74rem;color:var(--text);text-transform:uppercase;letter-spacing:.05em;opacity:.7;}
+.rstat-sep{color:var(--border2);font-size:.75rem;}
+.stat-active{color:var(--ok);}
+.stat-sectors{color:var(--accent2);}
+.stat-low{color:var(--warn);}
+.stat-empty{color:var(--dim2);}
+.stat-mined{color:var(--err);}
+::-webkit-scrollbar{width:6px;height:6px;}::-webkit-scrollbar-track{background:var(--bg);}::-webkit-scrollbar-thumb{background:var(--border2);border-radius:3px;}
+</style>
+</head>
+<body class="theme-deepspace">
+<div id="starfield"></div>
+
+<div class="header">
+  <div class="header-left">
+    <h1>⚗ <span>//</span> ZeroG Element Tracker</h1>
+    <div class="header-meta" id="headerMeta">No data yet &nbsp;·&nbsp; <span class="ok">0 active</span> &nbsp;·&nbsp; <span class="dim">0 mined</span></div>
+  </div>
+  <div class="theme-switcher">
+    <span style="font-size:.7rem;color:var(--dim2);font-family:var(--mono);margin-right:4px">THEME</span>
+    <button class="theme-btn active" id="btn-deepspace" style="background:linear-gradient(135deg,#070b14,#2979c8)" onclick="setTheme('deepspace')" title="Deep Space"></button>
+    <button class="theme-btn" id="btn-nebula" style="background:linear-gradient(135deg,#0d0714,#8a29c8)" onclick="setTheme('nebula')" title="Nebula"></button>
+  </div>
+</div>
+
+<!-- PLANET SUMMARY -->
+<div id="planetSummary" style="display:none">
+  <div class="summary-heading">🪐 Planet Summary <span style="color:var(--dim);font-weight:400;font-size:.7rem">— sorted by rare/epic hits</span></div>
+  <div class="planet-cards" id="planetCards"></div>
+</div>
+
+<!-- FILTERS -->
+<div class="filters-bar" id="filtersBar" style="display:none">
+  <select id="filterPlanet" onchange="renderTable()"><option value="">All Planets</option></select>
+  <div class="el-search-wrap">
+    <input type="text" id="elSearch" placeholder="Search element name..." autocomplete="off" oninput="onElSearch()" onfocus="openElDropdown()" onblur="setTimeout(closeElDropdown,200)"/>
+    <button class="clear-x" onclick="clearElSearch()" title="Clear">×</button>
+    <div class="el-dropdown" id="elDropdown"></div>
+  </div>
+  <div class="rarity-filter">
+    <span style="font-size:.75rem;color:var(--dim2)">Show:</span>
+    <label class="rarity-check rc-common on" id="rc-common" onclick="toggleRarity('common')"><span class="rarity-dot" style="background:#7aff7a"></span>Common</label>
+    <label class="rarity-check rc-uncommon on" id="rc-uncommon" onclick="toggleRarity('uncommon')"><span class="rarity-dot" style="background:#60c8ff"></span>Uncommon</label>
+    <label class="rarity-check rc-rare on" id="rc-rare" onclick="toggleRarity('rare')"><span class="rarity-dot" style="background:#c87eff"></span>Rare</label>
+    <label class="rarity-check rc-epic on" id="rc-epic" onclick="toggleRarity('epic')"><span class="rarity-dot" style="background:#ffb84d"></span>Epic</label>
+  </div>
+  <div class="spacer"></div>
+
+</div>
+
+<!-- RESULTS -->
+<div class="card" id="resultsCard" style="display:none;padding:0;overflow:hidden">
+  <div class="result-tabs">
+    <button class="result-tab active" id="tabActive" onclick="switchResultTab('active')">Active Sites <span class="count" id="countActive">0</span></button>
+    <button class="result-tab" id="tabLow" onclick="switchResultTab('low')">Low Quantity <span class="count" id="countLow">0</span></button>
+    <button class="result-tab" id="tabMined" onclick="switchResultTab('mined')">Fully Mined <span class="count" id="countMined">0</span></button>
+    <div class="result-stats" id="statsBar" style="display:none">
+      <span class="rstat"><span class="rstat-num stat-active" id="statActive">0</span><span class="rstat-label">quadrants</span></span>
+      <span class="rstat-sep">·</span>
+      <span class="rstat"><span class="rstat-num stat-sectors" id="statSectors">0</span><span class="rstat-label">sectors</span></span>
+      <span class="rstat-sep">·</span>
+      <span class="rstat"><span class="rstat-num stat-low" id="statLow">0</span><span class="rstat-label">low</span></span>
+      <span class="rstat-sep">·</span>
+      <span class="rstat"><span class="rstat-num stat-empty" id="statEmpty">0</span><span class="rstat-label">empty</span></span>
+      <span class="rstat-sep">·</span>
+      <span class="rstat"><span class="rstat-num stat-mined" id="statMined">0</span><span class="rstat-label">mined</span></span>
+    </div>
+  </div>
+  <div class="table-wrap">
+    <table><thead><tr>
+      <th>Planet</th><th>Site</th>
+      <th>Elements <span style="font-weight:400;opacity:.6">(click to mark mined)</span></th>
+      <th>Quantities</th><th>Deposit Size</th>
+      <th>Action</th>
+    </tr></thead>
+    <tbody id="resultsBody"></tbody></table>
+    <div class="empty" id="emptyState" style="display:none"><div class="icon">🪐</div><p>No sites here yet.</p></div>
+  </div>
+</div>
+
+<script>
+const ELEMENT_NAMES={Al:'Aluminum',Sb:'Antimony',As:'Arsenic',Be:'Beryllium',Bi:'Bismuth',B:'Boron',Cd:'Cadmium',Ca:'Calcium',C:'Carbon',Cl:'Chlorine',Cr:'Chromium',Co:'Cobalt',Cu:'Copper',Ga:'Gallium',Ge:'Germanium',He:'Helium',In:'Indium',Fe:'Iron',Pb:'Lead',Li:'Lithium',Mg:'Magnesium',Mn:'Manganese',Mo:'Molybdenum',Ne:'Neon',Ni:'Nickel',N:'Nitrogen',O:'Oxygen',K:'Potassium',Ag:'Silver',Na:'Sodium',S:'Sulfur',Tl:'Thallium',Sn:'Tin',W:'Tungsten',Zn:'Zinc',H:'Hydrogen',Si:'Silicon',Cn:'Copernicium',Ds:'Darmstadtium',Fl:'Flerovium',Fr:'Francium',Lv:'Livermorium',Mt:'Meitnerium',Pt:'Platinum',Rg:'Roentgenium',Ta:'Tantalum',Uuo:'Ununoctium',Uup:'Ununpentium',Uus:'Ununseptium',Uut:'Ununtrium',Ac:'Actinium',Am:'Americium',At:'Astatine',Cm:'Curium',Bh:'Bohrium',Cf:'Californium',Ce:'Cerium',Fm:'Fermium',Ho:'Holmium',Db:'Dubnium',Dy:'Dysprosium',Yb:'Ytterbium',Er:'Erbium',Eu:'Europium',Bk:'Berkelium',Gd:'Gadolinium',Hs:'Hassium',Cs:'Cesium',La:'Lanthanum',Es:'Einsteinium',Lu:'Lutetium',Md:'Mendelevium',Nd:'Neodymium',Lr:'Lawrencium',No:'Nobelium',Pu:'Plutonium',Pr:'Praseodymium',Np:'Neptunium',Pa:'Protactinium',Rh:'Rhodium',Pm:'Promethium',Sm:'Samarium',Sg:'Seaborgium',Tb:'Terbium',Rf:'Rutherfordium',Tm:'Thulium',U:'Uranium',Th:'Thorium',Y:'Yttrium',Au:'Gold',Po:'Polonium',Pd:'Palladium',Rn:'Radon',Hf:'Hafnium',Te:'Tellurium',Tc:'Technetium',Nb:'Niobium',Br:'Bromine',Ir:'Iridium',V:'Vanadium',Zr:'Zirconium',Sr:'Strontium',Ra:'Radium',Rb:'Rubidium',F:'Fluorine',TI:'Titanium',Kr:'Krypton',Ar:'Argon',I:'Iodine',Ba:'Barium',Re:'Rhenium',Ru:'Ruthenium',Hg:'Mercury',Os:'Osmium',P:'Phosphorus',Xe:'Xenon',Se:'Selenium',Sc:'Scandium'};
+
+const RARITY={Al:'common',Sb:'common',As:'common',Be:'common',Bi:'common',B:'common',Cd:'common',Ca:'common',C:'common',Cl:'common',Cr:'common',Co:'common',Cu:'common',Ga:'common',Ge:'common',He:'common',In:'common',Fe:'common',Pb:'common',Li:'common',Mg:'common',Mn:'common',Mo:'common',Ne:'common',Ni:'common',N:'common',O:'common',K:'common',Ag:'common',Na:'common',S:'common',Tl:'common',Sn:'common',W:'common',Zn:'common',H:'common',Si:'common',Cn:'epic',Ds:'epic',Fl:'epic',Fr:'epic',Lv:'epic',Mt:'epic',Pt:'epic',Rg:'epic',Ta:'epic',Uuo:'epic',Uup:'epic',Uus:'epic',Uut:'epic',Ac:'rare',Am:'rare',At:'rare',Cm:'rare',Bh:'rare',Cf:'rare',Ce:'rare',Fm:'rare',Ho:'rare',Db:'rare',Dy:'rare',Yb:'rare',Er:'rare',Eu:'rare',Bk:'rare',Gd:'rare',Hs:'rare',Cs:'rare',La:'rare',Es:'rare',Lu:'rare',Md:'rare',Nd:'rare',Lr:'rare',No:'rare',Pu:'rare',Pr:'rare',Np:'rare',Pa:'rare',Rh:'rare',Pm:'rare',Sm:'rare',Sg:'rare',Tb:'rare',Rf:'rare',Tm:'rare',U:'rare',Th:'rare',Y:'rare',Au:'uncommon',Po:'uncommon',Pd:'uncommon',Rn:'uncommon',Hf:'uncommon',Te:'uncommon',Tc:'uncommon',Nb:'uncommon',Br:'uncommon',Ir:'uncommon',V:'uncommon',Zr:'uncommon',Sr:'uncommon',Ra:'uncommon',Rb:'uncommon',F:'uncommon',TI:'uncommon',Kr:'uncommon',Ar:'uncommon',I:'uncommon',Ba:'uncommon',Re:'uncommon',Ru:'uncommon',Hg:'uncommon',Os:'uncommon',P:'uncommon',Xe:'uncommon',Se:'uncommon',Sc:'uncommon'};
+
+const ALL_PLANETS=[
+  {id:9,name:'Mercury'},{id:10,name:'Venus'},{id:11,name:'Earth'},{id:12,name:'Mars'},
+  {id:13,name:'Jupiter'},{id:14,name:'Saturn'},{id:15,name:'Uranus'},{id:16,name:'Neptune'},
+  {id:17,name:'Pluto'},{id:18,name:'Ceres'},{id:19,name:'Haumea'},{id:20,name:'Makemake'},
+  {id:21,name:'Eris'},{id:22,name:'Moon'},{id:23,name:'Io'},{id:24,name:'Europa'},
+  {id:25,name:'Ganymede'},{id:26,name:'Callisto'},{id:27,name:'Titan'},{id:28,name:'Enceladus'},
+  {id:29,name:'Titania'},{id:30,name:'Oberon'},{id:31,name:'Triton'},{id:32,name:'Charon'}
+];
+
+const DEFAULT_TARGETS=['Cm','Fm','Ho','Yb','Bk','Cs','Es','Lr','Np','Pm','Rf','Th','Y'];
+function getRarity(el){return RARITY[el]||'common';}
+function getGlowSet(){const epics=Object.entries(RARITY).filter(([,v])=>v==='epic').map(([k])=>k);return new Set([...DEFAULT_TARGETS,...epics]);}
+function isGlow(el){return getGlowSet().has(el);}
+function pillCls(el,mined){return'pill pill-'+getRarity(el)+(isGlow(el)?' pill-glow':'')+(mined?' el-mined':'');}
+
+// ── SHARE CONFIG ─────────────────────────────────────────────────
+// Once you have a GitHub account, replace the empty string below with your raw data URL
+// e.g. "https://raw.githubusercontent.com/YOURUSERNAME/zerog-tracker/main/data.json"
+const SHARE_URL = "https://raw.githubusercontent.com/theidxn/ElementTracker/main/data.json";
+// ─────────────────────────────────────────────────────────────────
+
+const SK='zerog_tracker_v5';
+function loadStore(){try{return JSON.parse(localStorage.getItem(SK))||{sites:[],lastScan:null,prevScanIds:[],theme:'deepspace'};}catch{return{sites:[],lastScan:null,prevScanIds:[],theme:'deepspace'};}}
+function saveStore(){try{localStorage.setItem(SK,JSON.stringify(store));}catch{}}
+
+let store=loadStore();
+let currentResultTab='active';
+let activeRarities=new Set(['common','uncommon','rare','epic']);
+let elSearchFilter=null;
+
+function setTheme(name){document.body.className='theme-'+name;document.querySelectorAll('.theme-btn').forEach(b=>b.classList.remove('active'));document.getElementById('btn-'+name).classList.add('active');store.theme=name;saveStore();buildStarfield();}
+
+function buildStarfield(){
+  const sf=document.getElementById('starfield');sf.innerHTML='';
+  for(let i=0;i<180;i++){const s=document.createElement('div');s.className='star';const size=Math.random()<.05?Math.random()*2+2:Math.random()*1.5+.5;s.style.cssText=`width:${size}px;height:${size}px;left:${Math.random()*100}%;top:${Math.random()*100}%;--d:${2+Math.random()*4}s;--delay:${-(Math.random()*6)}s;--min-op:${.05+Math.random()*.15};--max-op:${.4+Math.random()*.6};`;sf.appendChild(s);}
+  for(let i=0;i<5;i++){const s=document.createElement('div');s.className='star shooting';const angle=Math.random()*40+10,dist=200+Math.random()*300;s.style.cssText=`left:${Math.random()*80}%;top:${Math.random()*60}%;--d:${6+Math.random()*8}s;--delay:${-(Math.random()*10)}s;--dx:${Math.cos(angle*Math.PI/180)*dist};--dy:${Math.sin(angle*Math.PI/180)*dist};`;sf.appendChild(s);}
+}
+
+function getSectorStatus(site, el){
+  // Returns 'empty' (manually ticked or qty=0), 'low' (qty 1-149), or 'active'
+  if(site.minedElements && site.minedElements.includes(el)) return 'empty';
+  const dep = site.depositData && site.depositData[el];
+  if(dep && dep.qty === 0) return 'empty';
+  if(dep && dep.qty < 150) return 'low';
+  return 'active';
+}
+function isElEffectivelyDone(site, el){
+  return getSectorStatus(site, el) !== 'active';
+}
+function isFullyMined(site){
+  const visible=site.allElements.filter(e=>activeRarities.has(getRarity(e)));
+  if(!visible.length)return false;
+  return visible.every(e=>isElEffectivelyDone(site,e));
+}
+function isElMined(site,el){return site.minedElements&&site.minedElements.includes(el);}
+function toggleElementMined(siteId,el){const site=store.sites.find(s=>s.id===siteId);if(!site)return;if(!site.minedElements)site.minedElements=[];if(site.minedElements.includes(el))site.minedElements=site.minedElements.filter(x=>x!==el);else site.minedElements.push(el);saveStore();refreshUI();}
+function deleteSite(id){store.sites=store.sites.filter(x=>x.id!==id);saveStore();refreshUI();}
+
+function isNew(site){if(!store.prevScanIds?.length)return false;return!store.prevScanIds.includes(site.id);}
+
+function onElSearch(){const q=document.getElementById('elSearch').value.toLowerCase().trim();if(!q){elSearchFilter=null;renderTable();renderPlanetSummary();openElDropdown();return;}openElDropdown(q);}
+function openElDropdown(q){
+  const dd=document.getElementById('elDropdown');
+  const allEls=[...new Set(store.sites.flatMap(s=>s.allElements))].sort();
+  const query=q||document.getElementById('elSearch').value.toLowerCase().trim();
+  const filtered=allEls.filter(sym=>{if(!query)return true;const name=(ELEMENT_NAMES[sym]||'').toLowerCase();return sym.toLowerCase().includes(query)||name.includes(query);}).slice(0,query?20:200);
+  if(!filtered.length){dd.classList.remove('open');return;}
+  dd.innerHTML=filtered.map(sym=>'<div class="el-dropdown-item" onmousedown="selectElFilter(\''+sym+'\')"><span class="pill pill-'+getRarity(sym)+'" style="padding:1px 6px;font-size:.68rem">'+sym+'</span><span style="color:var(--dim2);font-size:.75rem">'+(ELEMENT_NAMES[sym]||'')+'</span></div>').join('');
+  dd.classList.add('open');
+}
+function closeElDropdown(){document.getElementById('elDropdown').classList.remove('open');}
+function selectElFilter(sym){elSearchFilter=sym;document.getElementById('elSearch').value=(ELEMENT_NAMES[sym]||sym)+' ('+sym+')';closeElDropdown();renderTable();renderPlanetSummary();}
+function clearElSearch(){document.getElementById('elSearch').value='';elSearchFilter=null;renderTable();renderPlanetSummary();}
+
+function toggleRarity(r){
+  if(activeRarities.has(r))activeRarities.delete(r);else activeRarities.add(r);
+  document.getElementById('rc-'+r).classList.toggle('on',activeRarities.has(r));
+  renderTable();renderPlanetSummary();
+}
+
+
+
+
+function importCsv(text){
+  document.getElementById('importLog').innerHTML='';
+  const lines=text.trim().split('\n');
+  if(lines.length<2){log('importLog','No data rows.','err');return;}
+  const headers=lines[0].split(',').map(h=>h.replace(/"/g,'').trim().toLowerCase());
+  const sites=[];
+  for(let i=1;i<lines.length;i++){
+    // Proper CSV parse — handles quoted fields containing commas and escaped quotes
+    const vals=[];let cur='',inQ=false;
+    for(let ci=0;ci<lines[i].length;ci++){const ch=lines[i][ci];if(ch==='"'){if(inQ&&lines[i][ci+1]==='"'){cur+='"';ci++;}else inQ=!inQ;}else if(ch===','&&!inQ){vals.push(cur.trim());cur='';}else cur+=ch;}
+    vals.push(cur.trim());
+    const obj={};headers.forEach((h,j)=>obj[h]=vals[j]||'');
+    const pname=obj['planet name']||obj['planetname']||'';if(!pname)continue;
+    const pid=obj['planet id']||obj['planetid']||'';
+    const sname=obj['site name']||obj['sitename']||'';
+    const allEls=(obj['all elements']||obj['allelements']||obj['elements']||'').split(';').filter(Boolean);
+    let depositData={};
+    try{const raw=obj['deposit data']||obj['depositdata']||'';if(raw)depositData=JSON.parse(raw);}catch(e){}
+    sites.push({id:pid+'_'+sname+'_imp'+i,planetId:pid,planetName:pname,siteName:sname,allElements:allEls,depositData:depositData,minedElements:[],foundAt:obj['found at']||obj['foundat']||new Date().toISOString(),source:'csv'});
+  }
+  const added=mergeSites(sites);saveStore();
+  log('importLog','Imported '+sites.length+' rows, '+added+' new sites added.','ok');
+  refreshUI();
+}
+
+function mergeSites(ns){
+  const keys=new Set(store.sites.map(s=>s.planetId+'_'+s.siteName));let added=0;
+  for(const s of ns){
+    const k=s.planetId+'_'+s.siteName;
+    if(!keys.has(k)){if(!s.minedElements)s.minedElements=[];if(!s.depositData)s.depositData={};store.sites.push(s);keys.add(k);added++;}
+    else{
+      const ex=store.sites.find(x=>x.planetId+'_'+x.siteName===k);
+      if(ex){
+        ex.allElements=s.allElements;
+        // merge deposit data — incoming wins if it has entries
+        if(s.depositData&&Object.keys(s.depositData).length)ex.depositData=s.depositData;
+      }
+    }
+  }
+  return added;
+}
+
+
+
+function refreshUI(){updateHeader();updateStatsBar();updateFilters();renderPlanetSummary();renderTable();}
+
+function calcStats(){
+  const all=store.sites;
+  let activeQ=0,activeSectors=0,lowSectors=0,emptySectors=0,fullyMined=0;
+  for(const s of all){
+    const vis=s.allElements.filter(e=>activeRarities.has(getRarity(e)));
+    let sActive=0,sLow=0,sEmpty=0;
+    for(const e of vis){
+      const st=getSectorStatus(s,e);
+      if(st==='active')sActive++;
+      else if(st==='low')sLow++;
+      else sEmpty++;
+    }
+    activeSectors+=sActive;
+    lowSectors+=sLow;
+    emptySectors+=sEmpty;
+    if(sActive>0)activeQ++;
+    else fullyMined++;
+  }
+  return{activeQ,activeSectors,lowSectors,emptySectors,fullyMined};
+}
+function updateStatsBar(){
+  const has=store.sites.length>0;
+  const bar=document.getElementById('statsBar');
+  if(!has){bar.style.display='none';return;}
+  bar.style.display='';
+  const s=calcStats();
+  document.getElementById('statActive').textContent=s.activeQ.toLocaleString();
+  document.getElementById('statSectors').textContent=s.activeSectors.toLocaleString();
+  document.getElementById('statLow').textContent=s.lowSectors.toLocaleString();
+  document.getElementById('statEmpty').textContent=s.emptySectors.toLocaleString();
+  document.getElementById('statMined').textContent=s.fullyMined.toLocaleString();
+}
+function updateHeader(){
+  const active=store.sites.filter(s=>!isFullyMined(s)).length;
+  const mined=store.sites.filter(s=>isFullyMined(s)).length;
+  const newCount=store.sites.filter(s=>isNew(s)&&!isFullyMined(s)).length;
+  const glows=getGlowSet();
+  const foundGlow=[...new Set(store.sites.filter(s=>!isFullyMined(s)).flatMap(s=>s.allElements.filter(e=>glows.has(e)&&!isElMined(s,e))))];
+  const last=store.lastScan?'Last scan: '+new Date(store.lastScan).toLocaleString():'No data yet';
+  document.getElementById('headerMeta').innerHTML=
+    last+' &nbsp;·&nbsp; <span class="ok">'+active+' active</span>'+
+    (newCount>0?' &nbsp;·&nbsp; <span class="new">'+newCount+' new ✦</span>':'')+
+    ' &nbsp;·&nbsp; <span class="dim">'+mined+' fully mined</span>'+
+    (foundGlow.length>0?' &nbsp;·&nbsp; <span style="color:var(--warn)">⚡ '+foundGlow.join(', ')+'</span>':'');
+}
+
+function updateFilters(){
+  const has=store.sites.length>0;
+  document.getElementById('filtersBar').style.display=has?'':'none';
+  document.getElementById('resultsCard').style.display=has?'':'none';
+  if(!has){document.getElementById('planetSummary').style.display='none';return;}
+  const pSel=document.getElementById('filterPlanet'),curP=pSel.value;
+  const planets=[...new Set(store.sites.map(s=>s.planetName))].sort();
+  pSel.innerHTML='<option value="">All Planets</option>'+planets.map(p=>'<option value="'+p+'">'+p+'</option>').join('');
+  pSel.value=curP;
+}
+
+function renderPlanetSummary(){
+  if(!store.sites.length){document.getElementById('planetSummary').style.display='none';return;}
+  document.getElementById('planetSummary').style.display='';
+  const byName={};
+  for(const s of store.sites){if(!byName[s.planetName])byName[s.planetName]={name:s.planetName,id:s.planetId,sites:[]};byName[s.planetName].sites.push(s);}
+  const glows=getGlowSet();
+  const knownNames=new Set(ALL_PLANETS.map(p=>p.name));
+  const extraPlanets=Object.keys(byName).filter(n=>!knownNames.has(n)).map(n=>({name:n,id:byName[n].id}));
+  const allPlanets=[...ALL_PLANETS,...extraPlanets];
+  const scored=allPlanets.map(p=>{
+    const data=byName[p.name];const sites=data?data.sites:[];
+    const activeSites=sites.filter(s=>!isFullyMined(s));
+    const newSites=sites.filter(s=>isNew(s)&&!isFullyMined(s));
+    const glowEls=[...new Set(activeSites.flatMap(s=>s.allElements.filter(e=>glows.has(e)&&!isElMined(s,e)&&activeRarities.has(getRarity(e)))))];
+    const rareCount=glowEls.filter(e=>getRarity(e)==='rare').length;
+    const epicCount=glowEls.filter(e=>getRarity(e)==='epic').length;
+    const score=epicCount*10+rareCount;
+    return{...p,sites,activeSites,newSites,glowEls,rareCount,epicCount,score};
+  });
+  scored.sort((a,b)=>{
+    const aHas=a.sites.length>0,bHas=b.sites.length>0;
+    if(aHas&&!bHas)return -1;if(!aHas&&bHas)return 1;
+    if(aHas&&bHas&&b.score!==a.score)return b.score-a.score;
+    return a.name.localeCompare(b.name);
+  });
+  document.getElementById('planetCards').innerHTML=scored.map(p=>{
+    const hasResults=p.sites.length>0;
+    const visEls=[...new Set(p.activeSites.flatMap(s=>s.allElements.filter(e=>activeRarities.has(getRarity(e))&&!isElMined(s,e))))].sort();
+    const showEls=p.glowEls.length>0?p.glowEls:visEls.slice(0,6);
+    const pills=showEls.map(e=>'<span class="pill pill-'+getRarity(e)+(isGlow(e)?' pill-glow':'')+'" style="font-size:.63rem;padding:1px 5px;margin:1px">'+e+'</span>').join('');
+    return '<div class="planet-card '+(hasResults?'has-results':'no-results')+'">'+
+      '<div class="planet-card-header"><div><div class="planet-card-name">'+p.name+'</div>'+
+      '<div class="planet-card-meta">'+(hasResults?p.sites.length+' site'+(p.sites.length!==1?'s':''):'no data')+'</div></div>'+
+      '<div class="planet-card-right">'+
+        (p.newSites.length?'<span class="planet-badge badge-new">'+p.newSites.length+'✦</span>':'')+
+        (p.epicCount?'<span class="planet-badge badge-epic">'+p.epicCount+' epic</span>':'')+
+        (p.rareCount?'<span class="planet-badge badge-rare">'+p.rareCount+' rare</span>':'')+
+      '</div></div>'+
+      (hasResults&&pills?'<div class="planet-card-pills">'+pills+'</div>':'<div class="planet-card-empty">'+(hasResults?'no matching elements':'not yet scanned')+'</div>')+
+    '</div>';
+  }).join('');
+}
+
+function getFiltered(tab){
+  const fp=document.getElementById('filterPlanet')?.value||'';
+  return store.sites.filter(s=>{
+    if(fp&&s.planetName!==fp)return false;
+    if(elSearchFilter&&!s.allElements.includes(elSearchFilter))return false;
+    const vis=s.allElements.filter(e=>activeRarities.has(getRarity(e)));
+    if(tab==='mined') return vis.length>0&&vis.every(e=>isElEffectivelyDone(s,e));
+    if(tab==='low') return !vis.every(e=>isElEffectivelyDone(s,e))&&vis.some(e=>getSectorStatus(s,e)==='low');
+    // active: has at least one active sector
+    return vis.some(e=>getSectorStatus(s,e)==='active');
+  });
+}
+
+function renderTable(){
+  const active=getFiltered('active'),low=getFiltered('low'),mined=getFiltered('mined');
+  document.getElementById('countActive').textContent=active.length;
+  document.getElementById('countLow').textContent=low.length;
+  document.getElementById('countMined').textContent=mined.length;
+  const rows=currentResultTab==='active'?active:currentResultTab==='low'?low:mined;
+  const tbody=document.getElementById('resultsBody'),empty=document.getElementById('emptyState');
+  if(!rows.length){tbody.innerHTML='';empty.style.display='';return;}
+  empty.style.display='none';
+  const sizeCol={'small':'var(--dim2)','medium':'var(--accent2)','large':'var(--ok)','huge':'var(--warn)'};
+  const sorted=[...rows].sort((a,b)=>{const an=isNew(a)?0:1,bn=isNew(b)?0:1;if(an!==bn)return an-bn;return a.planetName.localeCompare(b.planetName);});
+  tbody.innerHTML=sorted.map(s=>{
+    const visEls=s.allElements.filter(e=>activeRarities.has(getRarity(e)));
+    // Filter pills by status matching the current tab
+    const pillEls=visEls.filter(e=>{
+      const st=getSectorStatus(s,e);
+      if(currentResultTab==='active') return st==='active';
+      if(currentResultTab==='low') return st==='low';
+      return true; // fully mined tab shows all
+    });
+    const allPills=pillEls.map(e=>{
+      const m=isElMined(s,e);
+      if(currentResultTab==='low'){
+        // read-only in low tab
+        return '<span class="'+pillCls(e,false)+'" style="cursor:default" title="'+(ELEMENT_NAMES[e]||e)+'">'+e+'</span>';
+      }
+      return'<span class="'+pillCls(e,m)+'" onclick="toggleElementMined(\''+s.id+'\',\''+e+'\')" title="'+(ELEMENT_NAMES[e]||e)+' — click to toggle mined">'+(m?'<s>'+e+'</s>':e)+'</span>';
+    }).join('');
+    const deps=s.depositData||{};
+    const qtyHtml=pillEls.filter(e=>deps[e]).map(e=>{
+      const d=deps[e];const col=sizeCol[d.size]||'var(--dim2)';
+      return '<span style="white-space:nowrap;margin-right:10px;display:inline-flex;align-items:center;gap:5px">'+
+        '<span class="pill pill-'+getRarity(e)+'" style="font-size:.68rem;padding:1px 6px;cursor:default">'+e+'</span>'+
+        '<span style="color:'+col+';font-size:.85rem;font-family:var(--sans);font-weight:600">'+Number(d.qty).toLocaleString()+'</span></span>';
+    }).join('');
+    const sizeHtml=pillEls.filter(e=>deps[e]).map(e=>{
+      const d=deps[e];const col=sizeCol[d.size]||'var(--dim2)';
+      return '<span style="white-space:nowrap;margin-right:10px;display:inline-flex;align-items:center;gap:5px">'+
+        '<span class="pill pill-'+getRarity(e)+'" style="font-size:.68rem;padding:1px 6px;cursor:default">'+e+'</span>'+
+        '<span style="color:'+col+';font-size:.82rem;font-family:var(--sans);font-weight:600;text-transform:capitalize">'+d.size+'</span></span>';
+    }).join('');
+    const isNewSite=isNew(s)&&!isFullyMined(s);
+    const rowClass=(isFullyMined(s)?'fully-mined-row':'')+(isNewSite?' new-row':'');
+    const glowCount=s.allElements.filter(e=>isGlow(e)&&!isElMined(s,e)&&activeRarities.has(getRarity(e))).length;
+    return'<tr class="'+rowClass+'">'+
+      '<td><div class="planet-name">'+s.planetName+'</div><div class="planet-id">ID: '+s.planetId+'</div></td>'+
+      '<td><span class="site-name">'+s.siteName+'</span>'+(isNewSite?'<span class="new-badge">NEW ✦</span>':'')+(glowCount>0?'<span class="new-badge" style="background:rgba(255,140,40,.15);border-color:rgba(255,140,40,.5);color:var(--warn)">⚡ '+glowCount+'</span>':'')+'</td>'+
+      '<td>'+allPills+'</td>'+
+      '<td style="min-width:130px">'+(qtyHtml||'<span style="color:var(--dim);font-size:.82rem">—</span>')+'</td>'+
+      '<td style="min-width:100px">'+(sizeHtml||'<span style="color:var(--dim);font-size:.82rem">—</span>')+'</td>'+
+
+      '<td>'+(currentResultTab==='low'
+        ? pillEls.map(e=>'<button class="action-btn action-empty" onclick="toggleElementMined(\''+s.id+'\',\''+e+'\')" title="Mark '+e+' as empty">'+e+' empty</button>').join('')
+        : '<button class="action-btn action-del" onclick="deleteSite(\''+s.id+'\')">✕</button>'
+      )+'</td>'+
+    '</tr>';
+  }).join('');
+}
+
+// ── SCRIPTS (kept as plain backtick templates — no nesting issues) ──────────
+
+
+
+function switchResultTab(name){currentResultTab=name;['tabActive','tabLow','tabMined'].forEach(id=>document.getElementById(id).classList.remove('active'));document.getElementById(name==='active'?'tabActive':name==='low'?'tabLow':'tabMined').classList.add('active');renderTable();}
+function log(boxId,msg,type='info'){const b=document.getElementById(boxId);b.style.display='block';const l=document.createElement('div');l.className='log-line log-'+type;l.textContent='['+new Date().toLocaleTimeString()+'] '+msg;b.appendChild(l);b.scrollTop=b.scrollHeight;}
+
+async function loadSharedData(){
+  if(!SHARE_URL){refreshUI();return;}
+  try{
+    const r=await fetch(SHARE_URL+'?t='+Date.now());
+    if(!r.ok){refreshUI();return;}
+    const data=await r.json();
+    if(!data.sites||!data.sites.length){refreshUI();return;}
+    store.sites=data.sites;
+    store.lastScan=data.lastScan||null;
+    store.prevScanIds=[];
+    const banner=document.createElement('div');
+    banner.style.cssText='background:#0d1a0d;border:1px solid #2a6a2a;border-radius:8px;padding:10px 16px;margin-bottom:16px;font-size:.8rem;color:#7aff7a;font-family:var(--mono);position:relative;z-index:1;';
+    banner.innerHTML='👁 Viewing shared data — last updated '+new Date(data.exportedAt).toLocaleString();
+    document.querySelector('.header').after(banner);
+    refreshUI();
+  }catch(e){
+    console.log('Could not load shared data');
+    refreshUI();
+  }
+}
+buildStarfield();
+setTheme(store.theme||'deepspace');
+loadSharedData();
+
+</script>
+</body>
+</html>
