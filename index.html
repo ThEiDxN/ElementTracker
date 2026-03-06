@@ -277,9 +277,8 @@ function isElEffectivelyDone(site, el){
   return getSectorStatus(site, el) !== 'active';
 }
 function isFullyMined(site){
-  const visible=site.allElements.filter(e=>activeRarities.has(getRarity(e)));
-  if(!visible.length)return false;
-  return visible.every(e=>isElEffectivelyDone(site,e));
+  if(!site.allElements.length)return false;
+  return site.allElements.every(e=>isElEffectivelyDone(site,e));
 }
 function isElMined(site,el){return site.minedElements&&site.minedElements.includes(el);}
 function toggleElementMined(siteId,el){const site=store.sites.find(s=>s.id===siteId);if(!site)return;if(!site.minedElements)site.minedElements=[];if(site.minedElements.includes(el))site.minedElements=site.minedElements.filter(x=>x!==el);else site.minedElements.push(el);saveStore();refreshUI();}
@@ -511,7 +510,7 @@ function renderTable(){
     }).join('');
     const isNewSite=isNew(s)&&!isFullyMined(s);
     const rowClass=(isFullyMined(s)?'fully-mined-row':'')+(isNewSite?' new-row':'');
-    const glowCount=s.allElements.filter(e=>isGlow(e)&&!isElMined(s,e)&&activeRarities.has(getRarity(e))).length;
+    const glowCount=s.allElements.filter(e=>isGlow(e)&&activeRarities.has(getRarity(e))&&getSectorStatus(s,e)==='active').length;
     return'<tr class="'+rowClass+'">'+
       '<td><div class="planet-name">'+s.planetName+'</div><div class="planet-id">ID: '+s.planetId+'</div></td>'+
       '<td><span class="site-name">'+s.siteName+'</span>'+(isNewSite?'<span class="new-badge">NEW ✦</span>':'')+(glowCount>0?'<span class="new-badge" style="background:rgba(255,140,40,.15);border-color:rgba(255,140,40,.5);color:var(--warn)">⚡ '+glowCount+'</span>':'')+'</td>'+
