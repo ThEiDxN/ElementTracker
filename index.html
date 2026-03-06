@@ -431,7 +431,7 @@ function renderPlanetSummary(){
     const data=byName[p.name];const sites=data?data.sites:[];
     const activeSites=sites.filter(s=>!isFullyMined(s));
     const newSites=sites.filter(s=>isNew(s)&&!isFullyMined(s));
-    const glowEls=[...new Set(activeSites.flatMap(s=>s.allElements.filter(e=>glows.has(e)&&!isElMined(s,e)&&activeRarities.has(getRarity(e)))))];
+    const glowEls=[...new Set(activeSites.flatMap(s=>s.allElements.filter(e=>glows.has(e)&&activeRarities.has(getRarity(e))&&getSectorStatus(s,e)==='active')))];
     const rareCount=glowEls.filter(e=>getRarity(e)==='rare').length;
     const epicCount=glowEls.filter(e=>getRarity(e)==='epic').length;
     const score=epicCount*10+rareCount;
@@ -445,7 +445,7 @@ function renderPlanetSummary(){
   });
   document.getElementById('planetCards').innerHTML=scored.map(p=>{
     const hasResults=p.sites.length>0;
-    const visEls=[...new Set(p.activeSites.flatMap(s=>s.allElements.filter(e=>activeRarities.has(getRarity(e))&&!isElMined(s,e))))].sort();
+    const visEls=[...new Set(p.activeSites.flatMap(s=>s.allElements.filter(e=>activeRarities.has(getRarity(e))&&getSectorStatus(s,e)==='active')))].sort();
     const showEls=p.glowEls.length>0?p.glowEls:visEls.slice(0,6);
     const pills=showEls.map(e=>'<span class="pill pill-'+getRarity(e)+(isGlow(e)?' pill-glow':'')+'" style="font-size:.63rem;padding:1px 5px;margin:1px">'+e+'</span>').join('');
     return '<div class="planet-card '+(hasResults?'has-results':'no-results')+'" '+(hasResults?'onclick="filterByPlanet(\''+p.name+'\')" style="cursor:pointer"':'')+'>'+
