@@ -133,9 +133,6 @@ tr.new-row td:first-child{border-left:2px solid var(--new);}
 @keyframes pillglow{0%,100%{box-shadow:0 0 5px currentColor,0 0 10px currentColor;}50%{box-shadow:0 0 10px currentColor,0 0 20px currentColor,0 0 30px currentColor;}}
 
 .date-cell{font-size:.72rem;color:var(--dim2);font-family:var(--mono);white-space:nowrap;}
-.action-btn{padding:5px 11px;border-radius:5px;cursor:pointer;font-size:.75rem;font-weight:700;border:1px solid;transition:all .12s;font-family:var(--sans);}
-.action-del{border-color:#601e1e;background:#2a1010;color:var(--err);}.action-empty{border-color:#3a4a1a;background:#1a2010;color:var(--ok);margin:1px;}
-.action-del:hover{background:#3a1515;}
 
 .empty{text-align:center;padding:56px 20px;color:var(--dim);}
 .empty .icon{font-size:3rem;margin-bottom:14px;}
@@ -218,7 +215,7 @@ tr.new-row td:first-child{border-left:2px solid var(--new);}
       <th>Planet</th><th>Site</th>
       <th>Elements <span style="font-weight:400;opacity:.6">(click to mark mined)</span></th>
       <th>Quantities</th><th>Deposit Size</th>
-      <th>Action</th>
+      
     </tr></thead>
     <tbody id="resultsBody"></tbody></table>
     <div class="empty" id="emptyState" style="display:none"><div class="icon">🪐</div><p>No sites here yet.</p></div>
@@ -286,14 +283,13 @@ function isFullyMined(site){
 }
 function isElMined(site,el){return site.minedElements&&site.minedElements.includes(el);}
 function toggleElementMined(siteId,el){const site=store.sites.find(s=>s.id===siteId);if(!site)return;if(!site.minedElements)site.minedElements=[];if(site.minedElements.includes(el))site.minedElements=site.minedElements.filter(x=>x!==el);else site.minedElements.push(el);saveStore();refreshUI();}
-function deleteSite(id){store.sites=store.sites.filter(x=>x.id!==id);saveStore();refreshUI();}
 
 function isNew(site){if(!store.prevScanIds?.length)return false;return!store.prevScanIds.includes(site.id);}
 
 function onElSearch(){const q=document.getElementById('elSearch').value.toLowerCase().trim();if(!q){elSearchFilter=null;renderTable();renderPlanetSummary();openElDropdown();return;}openElDropdown(q);}
 function openElDropdown(q){
   const dd=document.getElementById('elDropdown');
-  const allEls=[...new Set(store.sites.flatMap(s=>s.allElements))].sort();
+  const allEls=[...new Set(store.sites.flatMap(s=>s.allElements))].sort((a,b)=>(ELEMENT_NAMES[a]||a).localeCompare(ELEMENT_NAMES[b]||b));
   const query=q||document.getElementById('elSearch').value.toLowerCase().trim();
   const filtered=allEls.filter(sym=>{if(!query)return true;const name=(ELEMENT_NAMES[sym]||'').toLowerCase();return sym.toLowerCase().includes(query)||name.includes(query);}).slice(0,query?20:200);
   if(!filtered.length){dd.classList.remove('open');return;}
@@ -523,10 +519,7 @@ function renderTable(){
       '<td style="min-width:130px">'+(qtyHtml||'<span style="color:var(--dim);font-size:.82rem">—</span>')+'</td>'+
       '<td style="min-width:100px">'+(sizeHtml||'<span style="color:var(--dim);font-size:.82rem">—</span>')+'</td>'+
 
-      '<td>'+(currentResultTab==='low'
-        ? pillEls.map(e=>'<button class="action-btn action-empty" onclick="toggleElementMined(\''+s.id+'\',\''+e+'\')" title="Mark '+e+' as empty">'+e+' empty</button>').join('')
-        : '<button class="action-btn action-del" onclick="deleteSite(\''+s.id+'\')">✕</button>'
-      )+'</td>'+
+      
     '</tr>';
   }).join('');
 }
