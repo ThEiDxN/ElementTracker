@@ -8,6 +8,7 @@
 @import url('https://fonts.googleapis.com/css2?family=Share+Tech+Mono&family=Exo+2:wght@300;400;600;700&display=swap');
 
 body.theme-deepspace{--bg:#070b14;--bg2:#0d1220;--card:#0f1726;--border:#1a2840;--border2:#223050;--accent:#2979c8;--accent2:#5eb8ff;--ok:#3dffa0;--warn:#ffb84d;--err:#ff5f5f;--text:#ccdaee;--dim:#3d5070;--dim2:#5a7090;--new:#ffe066;--star:#ffffff;}
+body.theme-solar{--bg:#0e0a00;--bg2:#1a1200;--card:#1f1600;--border:#2e2200;--border2:#3d3000;--accent:#c87800;--accent2:#ffb830;--ok:#a0ff60;--warn:#ff9020;--err:#ff5f5f;--text:#f0dfa0;--dim:#5a4a10;--dim2:#8a7030;--new:#60ffee;--star:#ffffc0;}
 body.theme-nebula{--bg:#0d0714;--bg2:#140d20;--card:#170f26;--border:#2a1840;--border2:#3a2250;--accent:#8a29c8;--accent2:#c87eff;--ok:#ff7ef0;--warn:#ffb84d;--err:#ff5f5f;--text:#e0ccee;--dim:#503d70;--dim2:#7a5a90;--new:#ffe066;--star:#ffccff;}
 
 :root{--mono:'Share Tech Mono',monospace;--sans:'Exo 2',sans-serif;}
@@ -100,6 +101,18 @@ input:focus,textarea:focus,select:focus{border-color:var(--accent);}
 .badge-epic{background:rgba(255,140,40,.1);border:1px solid rgba(255,140,40,.35);color:#ffb84d;}
 .planet-card-pills{display:flex;flex-wrap:wrap;gap:3px;}
 .planet-card-empty{font-size:.72rem;color:var(--dim);font-family:var(--mono);font-style:italic;}
+.rarity-breakdown{display:flex;flex-direction:column;gap:3px;margin-top:7px;}
+.rb-row{display:flex;align-items:center;gap:6px;}
+.rb-row.rb-dimmed{opacity:.22;}
+.rb-label{width:56px;font-size:.64rem;text-transform:uppercase;letter-spacing:.05em;font-family:var(--mono);}
+.rb-label-common{color:#7aff7a;}.rb-label-uncommon{color:#60c8ff;}.rb-label-rare{color:#c87eff;}.rb-label-epic{color:#ffb84d;}
+.rb-count{font-weight:700;font-size:.78rem;min-width:14px;text-align:right;font-family:var(--mono);}
+.rb-count-common{color:#7aff7a;}.rb-count-uncommon{color:#60c8ff;}.rb-count-rare{color:#c87eff;}.rb-count-epic{color:#ffb84d;}
+.rb-bar-wrap{flex:1;height:3px;background:var(--border);border-radius:2px;overflow:hidden;}
+.rb-bar{height:100%;border-radius:2px;transition:width .25s;}
+.rb-bar-common{background:#7aff7a;}.rb-bar-uncommon{background:#60c8ff;}.rb-bar-rare{background:#c87eff;}.rb-bar-epic{background:#ffb84d;}
+.planet-card-meta-active{font-size:.68rem;color:var(--ok);font-family:var(--mono);}
+.planet-card-meta-total{font-size:.68rem;color:var(--dim2);font-family:var(--mono);}
 
 .result-tabs{display:flex;border-bottom:1px solid var(--border);}
 .result-tab{padding:12px 22px;border:none;background:transparent;cursor:pointer;font-family:var(--sans);font-weight:700;font-size:.8rem;text-transform:uppercase;letter-spacing:.07em;color:var(--dim2);border-bottom:2px solid transparent;margin-bottom:-1px;transition:all .15s;}
@@ -119,7 +132,7 @@ tr.new-row td{background:rgba(255,224,102,.03);}
 tr.new-row td:first-child{border-left:2px solid var(--new);}
 .planet-name{color:var(--accent2);font-weight:700;}
 .planet-id{font-size:.7rem;color:var(--dim);font-family:var(--mono);}
-.site-name{font-family:var(--mono);font-size:.82rem;color:var(--text);}
+.site-name{font-family:var(--sans);font-size:.82rem;color:#e8eaf0;font-weight:600;}
 .new-badge{display:inline-block;padding:1px 6px;border-radius:8px;font-size:.65rem;font-weight:700;background:rgba(255,224,102,.15);border:1px solid rgba(255,224,102,.5);color:var(--new);margin-left:6px;vertical-align:middle;font-family:var(--mono);}
 
 .pill{display:inline-block;padding:2px 8px;margin:2px;border-radius:12px;font-size:.72rem;font-weight:700;font-family:var(--mono);cursor:pointer;transition:all .12s;}
@@ -133,6 +146,9 @@ tr.new-row td:first-child{border-left:2px solid var(--new);}
 @keyframes pillglow{0%,100%{box-shadow:0 0 5px currentColor,0 0 10px currentColor;}50%{box-shadow:0 0 10px currentColor,0 0 20px currentColor,0 0 30px currentColor;}}
 
 .date-cell{font-size:.72rem;color:var(--dim2);font-family:var(--mono);white-space:nowrap;}
+.action-btn{padding:5px 11px;border-radius:5px;cursor:pointer;font-size:.75rem;font-weight:700;border:1px solid;transition:all .12s;font-family:var(--sans);}
+.action-del{border-color:#601e1e;background:#2a1010;color:var(--err);}.action-empty{border-color:#3a4a1a;background:#1a2010;color:var(--ok);margin:1px;}
+.action-del:hover{background:#3a1515;}
 
 .empty{text-align:center;padding:56px 20px;color:var(--dim);}
 .empty .icon{font-size:3rem;margin-bottom:14px;}
@@ -150,6 +166,67 @@ tr.new-row td:first-child{border-left:2px solid var(--new);}
 .stat-empty{color:var(--dim2);}
 .stat-mined{color:var(--err);}
 ::-webkit-scrollbar{width:6px;height:6px;}::-webkit-scrollbar-track{background:var(--bg);}::-webkit-scrollbar-thumb{background:var(--border2);border-radius:3px;}
+
+#stickyBar{position:sticky;top:0;z-index:50;background:var(--bg2);border:1px solid var(--border2);border-radius:8px;padding:8px 16px;margin-bottom:14px;display:none;flex-wrap:wrap;gap:8px 14px;align-items:center;backdrop-filter:blur(8px);}
+.sbar-label{font-size:.68rem;text-transform:uppercase;letter-spacing:.1em;color:var(--dim2);font-family:var(--mono);margin-right:2px;}
+.sbar-group{display:flex;align-items:center;gap:5px;flex-wrap:wrap;}
+.sbar-pill{display:inline-flex;align-items:center;padding:2px 8px;border-radius:10px;font-size:.72rem;font-weight:700;font-family:var(--mono);}
+.sbar-pill-rare{background:rgba(180,80,255,.12);border:1px solid rgba(180,80,255,.35);color:#c87eff;}
+.sbar-pill-epic{background:rgba(255,140,40,.12);border:1px solid rgba(255,140,40,.35);color:#ffb84d;}
+.sbar-sep{color:var(--border2);font-size:.8rem;}
+.sbar-count{font-size:.82rem;font-weight:700;font-family:var(--mono);}
+.sbar-count.epic-c{color:var(--warn);}
+.sbar-count.rare-c{color:#c87eff;}
+th.sortable{cursor:pointer;user-select:none;white-space:nowrap;}
+th.sortable:hover{color:var(--accent2);}
+th.sort-asc::after{content:' \25B2';font-size:.6rem;opacity:.8;}
+th.sort-desc::after{content:' \25BC';font-size:.6rem;opacity:.8;}
+tr.row-has-epic td:first-child{border-left:2px solid rgba(255,140,40,.6);}
+tr.row-has-rare td:first-child{border-left:2px solid rgba(180,80,255,.4);}
+tr.row-has-epic{background:rgba(255,140,40,.025);}
+tr.planet-group-header td{background:var(--bg2);padding:6px 13px;font-size:.72rem;font-family:var(--mono);color:var(--dim2);border-bottom:none;cursor:pointer;user-select:none;}
+tr.planet-group-header:hover td{background:var(--border);}
+tr.planet-group-header td .pgh-name{color:var(--accent2);font-weight:700;font-size:.82rem;}
+tr.planet-group-header td .pgh-meta{margin-left:10px;color:var(--dim2);}
+tr.planet-group-header .collapse-icon{float:right;transition:transform .2s;}
+tr.planet-group-header.collapsed .collapse-icon{transform:rotate(-90deg);}
+.pill .el-fullname{font-size:.6rem;font-weight:400;opacity:.9;font-family:var(--sans);color:#c8d0e8;}
+.pill-grid{display:flex;flex-wrap:wrap;gap:3px;max-width:340px;}
+.el-col-row{white-space:nowrap;height:26px;display:flex;align-items:center;border-bottom:1px solid rgba(255,255,255,.07);transition:background .1s;}.el-col-row:last-child{border-bottom:none;}.el-col-row.el-row-hover{background:rgba(255,255,255,.07);border-radius:3px;}
+.el-col-pill{min-width:150px;vertical-align:top;}
+.el-col-qty-td{font-family:var(--sans);font-size:.82rem;font-weight:600;padding-left:20px!important;white-space:nowrap;vertical-align:top;}
+.el-col-qty{}
+.el-col-unc-td{white-space:nowrap;vertical-align:top;}
+.el-col-gc-td{white-space:nowrap;vertical-align:top;}
+.view-toggle{display:flex;gap:4px;border:1px solid var(--border2);border-radius:6px;overflow:hidden;}
+.vt-btn{padding:5px 10px;border:none;background:transparent;color:var(--dim2);cursor:pointer;font-size:.72rem;font-family:var(--mono);transition:all .12s;}
+.vt-btn.active{background:var(--border2);color:var(--accent2);}
+.vt-btn:hover{color:var(--accent2);}
+.action-mine-all{border-color:#1a3a4a!important;background:#0a1a2a!important;color:var(--accent2)!important;margin:1px;}
+.action-mine-all:hover{background:#0d2a3a!important;}
+.actions-cell{white-space:nowrap;}
+.note-display{font-size:.72rem;color:var(--dim2);font-style:italic;max-width:150px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;cursor:pointer;display:block;}
+.note-display:hover{color:var(--accent2);}
+.note-display.empty-note{color:var(--dim);opacity:.45;}
+.note-input{width:100%;min-width:110px;background:var(--bg2);border:1px solid var(--accent);border-radius:4px;color:var(--text);padding:4px 8px;font-size:.72rem;font-family:var(--sans);outline:none;}
+.dep-row{display:flex;align-items:center;gap:5px;margin-bottom:2px;white-space:nowrap;}
+.dep-qty{font-weight:600;font-family:var(--sans);font-size:.82rem;}
+.dep-size{font-size:.78rem;font-family:var(--sans);font-weight:600;text-transform:capitalize;}
+.paste-area{width:100%;height:110px;background:var(--bg);border:1px solid var(--border);border-radius:6px;color:var(--text);padding:10px 13px;font-size:.77rem;font-family:var(--mono);outline:none;resize:vertical;transition:border-color .2s;}
+.paste-area:focus{border-color:var(--accent);}
+.paste-note{font-size:.72rem;color:var(--dim);margin-bottom:6px;}
+.history-list{max-height:160px;overflow-y:auto;margin-top:10px;}
+.history-item{display:flex;align-items:center;flex-wrap:wrap;gap:4px;padding:6px 10px;border-radius:5px;background:var(--bg2);border:1px solid var(--border);margin-bottom:5px;font-size:.74rem;font-family:var(--mono);}
+.hi-time{color:var(--dim2);margin-left:auto;}
+.hi-count{color:var(--ok);font-weight:700;}
+.hi-label{color:var(--accent2);}
+
+.price-cell{min-width:90px;}
+.price-row{display:flex;align-items:center;gap:5px;margin-bottom:2px;white-space:nowrap;}
+.price-unc{font-family:var(--sans);font-size:.82rem;font-weight:600;}
+.price-gc{font-family:var(--sans);font-size:.82rem;font-weight:600;}
+.rc-common{color:#7aff7a;}.rc-uncommon{color:#60c8ff;}.rc-rare{color:#c87eff;}.rc-epic{color:#ffb84d;}
+.price-label{font-size:.65rem;font-family:var(--sans);opacity:.75;text-transform:uppercase;letter-spacing:.04em;color:#a0a8c0;}
 </style>
 </head>
 <body class="theme-deepspace">
@@ -164,8 +241,22 @@ tr.new-row td:first-child{border-left:2px solid var(--new);}
     <span style="font-size:.7rem;color:var(--dim2);font-family:var(--mono);margin-right:4px">THEME</span>
     <button class="theme-btn active" id="btn-deepspace" style="background:linear-gradient(135deg,#070b14,#2979c8)" onclick="setTheme('deepspace')" title="Deep Space"></button>
     <button class="theme-btn" id="btn-nebula" style="background:linear-gradient(135deg,#0d0714,#8a29c8)" onclick="setTheme('nebula')" title="Nebula"></button>
+    <button class="theme-btn" id="btn-solar" style="background:linear-gradient(135deg,#0e0a00,#c87800)" onclick="setTheme('solar')" title="Solar"></button>
   </div>
 </div>
+
+<!-- STICKY RARE/EPIC BAR -->
+<div id="stickyBar">
+  <span class="sbar-label">Active:</span>
+  <span class="sbar-count epic-c" id="sbarEpicCount">0</span><span class="sbar-label">epic</span>
+  <span class="sbar-sep">&middot;</span>
+  <span class="sbar-count rare-c" id="sbarRareCount">0</span><span class="sbar-label">rare</span>
+  <span class="sbar-sep">&middot;</span>
+  <span class="sbar-group" id="sbarEpicPills"></span>
+  <span id="sbarRareSep" class="sbar-sep" style="display:none">|</span>
+  <span class="sbar-group" id="sbarRarePills"></span>
+</div>
+
 
 <!-- PLANET SUMMARY -->
 <div id="planetSummary" style="display:none">
@@ -188,16 +279,21 @@ tr.new-row td:first-child{border-left:2px solid var(--new);}
     <label class="rarity-check rc-rare on" id="rc-rare" onclick="toggleRarity('rare')"><span class="rarity-dot" style="background:#c87eff"></span>Rare</label>
     <label class="rarity-check rc-epic on" id="rc-epic" onclick="toggleRarity('epic')"><span class="rarity-dot" style="background:#ffb84d"></span>Epic</label>
   </div>
+  <div class="view-toggle">
+    <button class="vt-btn active" id="vt-flat" onclick="setViewMode('flat',this)">≡ Flat</button>
+    <button class="vt-btn" id="vt-grouped" onclick="setViewMode('grouped',this)">⊞ Grouped</button>
+  </div>
   <div class="spacer"></div>
-
+  <button class="btn btn-ghost btn-sm" onclick="exportCsv()">📋 Export CSV</button>
+  <button class="btn btn-ghost btn-sm" onclick="exportShareData()">☁ Export Share Data</button>
+  <button class="btn btn-danger btn-sm" onclick="clearAll()">🗑 Clear All</button>
 </div>
 
 <!-- RESULTS -->
 <div class="card" id="resultsCard" style="display:none;padding:0;overflow:hidden">
   <div class="result-tabs">
     <button class="result-tab active" id="tabActive" onclick="switchResultTab('active')">Active Sites <span class="count" id="countActive">0</span></button>
-    <button class="result-tab" id="tabLow" onclick="switchResultTab('low')">Low Quantity <span class="count" id="countLow">0</span></button>
-    <button class="result-tab" id="tabMined" onclick="switchResultTab('mined')">Fully Mined <span class="count" id="countMined">0</span></button>
+    <button class="result-tab" id="tabDone" onclick="switchResultTab('done')">Low / Mined <span class="count" id="countDone">0</span></button>
     <div class="result-stats" id="statsBar" style="display:none">
       <span class="rstat"><span class="rstat-num stat-active" id="statActive">0</span><span class="rstat-label">quadrants</span></span>
       <span class="rstat-sep">·</span>
@@ -205,17 +301,18 @@ tr.new-row td:first-child{border-left:2px solid var(--new);}
       <span class="rstat-sep">·</span>
       <span class="rstat"><span class="rstat-num stat-low" id="statLow">0</span><span class="rstat-label">low</span></span>
       <span class="rstat-sep">·</span>
-      <span class="rstat"><span class="rstat-num stat-empty" id="statEmpty">0</span><span class="rstat-label">empty</span></span>
-      <span class="rstat-sep">·</span>
       <span class="rstat"><span class="rstat-num stat-mined" id="statMined">0</span><span class="rstat-label">mined</span></span>
     </div>
   </div>
   <div class="table-wrap">
     <table><thead><tr>
-      <th>Planet</th><th>Site</th>
-      <th>Elements <span style="font-weight:400;opacity:.6">(click to mark mined)</span></th>
-      <th>Quantities</th><th>Deposit Size</th>
-      
+      <th class="sortable" onclick="sortBy('planet')" id="th-planet">Planet</th>
+      <th class="sortable" onclick="sortBy('site')" id="th-site">Site</th>
+      <th>Elements</th>
+      <th style="padding-left:20px">Qty</th>
+      <th>UNc</th>
+      <th>0Gc</th>
+
     </tr></thead>
     <tbody id="resultsBody"></tbody></table>
     <div class="empty" id="emptyState" style="display:none"><div class="icon">🪐</div><p>No sites here yet.</p></div>
@@ -236,306 +333,22 @@ const ALL_PLANETS=[
   {id:29,name:'Titania'},{id:30,name:'Oberon'},{id:31,name:'Triton'},{id:32,name:'Charon'}
 ];
 
+
+const PRICE_UNC={Ac:439,Ag:15,Al:5,Am:206,Ar:39,As:5,At:350,Au:95,B:6,Ba:38,Be:5,Bh:456,Bi:5,Bk:300,Br:57,C:6.5,Ca:9.5,Cd:7,Ce:490,Cf:172,Cl:5,Cm:600,Cn:2160,Co:6,Cr:7,Cs:385,Cu:8.5,Db:390,Ds:3300,Dy:275,Er:355,Es:450,Eu:117,F:45,Fe:9,Fl:3390,Fm:325,Fr:2167,Ga:4,Gd:95.5,Ge:2,H:1,He:4.5,Hf:78,Hg:34.5,Ho:308,Hs:190.5,I:38.5,In:3.5,Ir:57,K:8.5,Kr:43.5,La:388.5,Li:10,Lr:339,Lu:95,Lv:2500,Md:450,Mg:3.5,Mn:6,Mo:8,Mt:1600,N:5,Na:12.5,Nb:60,Nd:175,Ne:10.5,Ni:5.5,No:295,Np:307,O:2.5,Os:32.5,P:30,Pa:283,Pb:7,Pd:88,Pm:217,Po:90,Pr:336,Pt:4000,Pu:440,Ra:50,Rb:49.5,Re:35.5,Rf:122,Rg:3835,Rh:356,Rn:83,Ru:35,S:5,Sb:5,Sc:25,Se:27.5,Sg:257.5,Si:1.5,Sm:444,Sn:5,Sr:50.5,TI:45,Ta:1170,Tb:250,Tc:65.5,Te:70.5,Th:250,Tl:10,Tm:358.5,U:450,Uuo:3900,Uup:2250,Uus:3835,Uut:4000,V:55,W:9,Xe:30,Y:313,Yb:55.5,Zn:3,Zr:51};
+const PRICE_GC={Ac:0.5,At:0.5,Bh:0.5,Bk:1,Cf:0.5,Cm:1.5,Cs:1,Es:1,Eu:0.5,Fm:1.5,Gd:0.5,Ho:1.5,Lr:1,Lu:0.5,Md:0.5,Np:1,Pa:0.5,Pm:1,Pu:0.5,Rf:1,Rh:0.5,Tb:0.5,Th:1,Y:1,Yb:1.5};
 const DEFAULT_TARGETS=['Cm','Fm','Ho','Yb','Bk','Cs','Es','Lr','Np','Pm','Rf','Th','Y'];
 function getRarity(el){return RARITY[el]||'common';}
 function getGlowSet(){const epics=Object.entries(RARITY).filter(([,v])=>v==='epic').map(([k])=>k);return new Set([...DEFAULT_TARGETS,...epics]);}
 function isGlow(el){return getGlowSet().has(el);}
 function pillCls(el,mined){return'pill pill-'+getRarity(el)+(isGlow(el)?' pill-glow':'')+(mined?' el-mined':'');}
 
-// ── SHARE CONFIG ─────────────────────────────────────────────────
-// Once you have a GitHub account, replace the empty string below with your raw data URL
-// e.g. "https://raw.githubusercontent.com/YOURUSERNAME/zerog-tracker/main/data.json"
-const SHARE_URL = "https://raw.githubusercontent.com/theidxn/ElementTracker/main/data.json";
-// ─────────────────────────────────────────────────────────────────
-
-const SK='zerog_tracker_v5';
+const SK='zerog_tracker_v6';
 function loadStore(){try{return JSON.parse(localStorage.getItem(SK))||{sites:[],lastScan:null,prevScanIds:[],theme:'deepspace'};}catch{return{sites:[],lastScan:null,prevScanIds:[],theme:'deepspace'};}}
 function saveStore(){try{localStorage.setItem(SK,JSON.stringify(store));}catch{}}
 
-let store=loadStore();
-let currentResultTab='active';
-let activeRarities=new Set(['common','uncommon','rare','epic']);
-let elSearchFilter=null;
-
-function setTheme(name){document.body.className='theme-'+name;document.querySelectorAll('.theme-btn').forEach(b=>b.classList.remove('active'));document.getElementById('btn-'+name).classList.add('active');store.theme=name;saveStore();buildStarfield();}
-
-function buildStarfield(){
-  const sf=document.getElementById('starfield');sf.innerHTML='';
-  for(let i=0;i<180;i++){const s=document.createElement('div');s.className='star';const size=Math.random()<.05?Math.random()*2+2:Math.random()*1.5+.5;s.style.cssText=`width:${size}px;height:${size}px;left:${Math.random()*100}%;top:${Math.random()*100}%;--d:${2+Math.random()*4}s;--delay:${-(Math.random()*6)}s;--min-op:${.05+Math.random()*.15};--max-op:${.4+Math.random()*.6};`;sf.appendChild(s);}
-  for(let i=0;i<5;i++){const s=document.createElement('div');s.className='star shooting';const angle=Math.random()*40+10,dist=200+Math.random()*300;s.style.cssText=`left:${Math.random()*80}%;top:${Math.random()*60}%;--d:${6+Math.random()*8}s;--delay:${-(Math.random()*10)}s;--dx:${Math.cos(angle*Math.PI/180)*dist};--dy:${Math.sin(angle*Math.PI/180)*dist};`;sf.appendChild(s);}
-}
-
-function getSectorStatus(site, el){
-  // Returns 'empty' (manually ticked or qty=0), 'low' (qty 1-149), or 'active'
-  if(site.minedElements && site.minedElements.includes(el)) return 'empty';
-  const dep = site.depositData && site.depositData[el];
-  if(dep && dep.qty === 0) return 'empty';
-  if(dep && dep.qty < 150) return 'low';
-  return 'active';
-}
-function isElEffectivelyDone(site, el){
-  return getSectorStatus(site, el) !== 'active';
-}
-function isFullyMined(site){
-  if(!site.allElements.length)return false;
-  return site.allElements.every(e=>isElEffectivelyDone(site,e));
-}
-function isElMined(site,el){return site.minedElements&&site.minedElements.includes(el);}
-function toggleElementMined(siteId,el){const site=store.sites.find(s=>s.id===siteId);if(!site)return;if(!site.minedElements)site.minedElements=[];if(site.minedElements.includes(el))site.minedElements=site.minedElements.filter(x=>x!==el);else site.minedElements.push(el);saveStore();refreshUI();}
-
-function isNew(site){if(!store.prevScanIds?.length)return false;return!store.prevScanIds.includes(site.id);}
-
-function onElSearch(){const q=document.getElementById('elSearch').value.toLowerCase().trim();if(!q){elSearchFilter=null;renderTable();renderPlanetSummary();openElDropdown();return;}openElDropdown(q);}
-function openElDropdown(q){
-  const dd=document.getElementById('elDropdown');
-  const allEls=[...new Set(store.sites.flatMap(s=>s.allElements))].sort((a,b)=>(ELEMENT_NAMES[a]||a).localeCompare(ELEMENT_NAMES[b]||b));
-  const query=q||document.getElementById('elSearch').value.toLowerCase().trim();
-  const filtered=allEls.filter(sym=>{if(!query)return true;const name=(ELEMENT_NAMES[sym]||'').toLowerCase();return sym.toLowerCase().includes(query)||name.includes(query);}).slice(0,query?20:200);
-  if(!filtered.length){dd.classList.remove('open');return;}
-  dd.innerHTML=filtered.map(sym=>'<div class="el-dropdown-item" onmousedown="selectElFilter(\''+sym+'\')"><span class="pill pill-'+getRarity(sym)+'" style="padding:1px 6px;font-size:.68rem">'+sym+'</span><span style="color:var(--dim2);font-size:.75rem">'+(ELEMENT_NAMES[sym]||'')+'</span></div>').join('');
-  dd.classList.add('open');
-}
-function closeElDropdown(){document.getElementById('elDropdown').classList.remove('open');}
-function selectElFilter(sym){elSearchFilter=sym;document.getElementById('elSearch').value=(ELEMENT_NAMES[sym]||sym)+' ('+sym+')';closeElDropdown();renderTable();renderPlanetSummary();}
-function clearElSearch(){document.getElementById('elSearch').value='';elSearchFilter=null;renderTable();renderPlanetSummary();}
-
-function filterByPlanet(name){
-  const sel=document.getElementById('filterPlanet');
-  if(sel.value===name){sel.value='';}
-  else{sel.value=name;}
-  renderTable();
-  document.getElementById('resultsCard').scrollIntoView({behavior:'smooth'});
-}
-function toggleRarity(r){
-  if(activeRarities.has(r))activeRarities.delete(r);else activeRarities.add(r);
-  document.getElementById('rc-'+r).classList.toggle('on',activeRarities.has(r));
-  renderTable();renderPlanetSummary();
-}
-
-
-
-
-function importCsv(text){
-  document.getElementById('importLog').innerHTML='';
-  const lines=text.trim().split('\n');
-  if(lines.length<2){log('importLog','No data rows.','err');return;}
-  const headers=lines[0].split(',').map(h=>h.replace(/"/g,'').trim().toLowerCase());
-  const sites=[];
-  for(let i=1;i<lines.length;i++){
-    // Proper CSV parse — handles quoted fields containing commas and escaped quotes
-    const vals=[];let cur='',inQ=false;
-    for(let ci=0;ci<lines[i].length;ci++){const ch=lines[i][ci];if(ch==='"'){if(inQ&&lines[i][ci+1]==='"'){cur+='"';ci++;}else inQ=!inQ;}else if(ch===','&&!inQ){vals.push(cur.trim());cur='';}else cur+=ch;}
-    vals.push(cur.trim());
-    const obj={};headers.forEach((h,j)=>obj[h]=vals[j]||'');
-    const pname=obj['planet name']||obj['planetname']||'';if(!pname)continue;
-    const pid=obj['planet id']||obj['planetid']||'';
-    const sname=obj['site name']||obj['sitename']||'';
-    const allEls=(obj['all elements']||obj['allelements']||obj['elements']||'').split(';').filter(Boolean);
-    let depositData={};
-    try{const raw=obj['deposit data']||obj['depositdata']||'';if(raw)depositData=JSON.parse(raw);}catch(e){}
-    sites.push({id:pid+'_'+sname+'_imp'+i,planetId:pid,planetName:pname,siteName:sname,allElements:allEls,depositData:depositData,minedElements:[],foundAt:obj['found at']||obj['foundat']||new Date().toISOString(),source:'csv'});
-  }
-  const added=mergeSites(sites);saveStore();
-  log('importLog','Imported '+sites.length+' rows, '+added+' new sites added.','ok');
-  refreshUI();
-}
-
-function mergeSites(ns){
-  const keys=new Set(store.sites.map(s=>s.planetId+'_'+s.siteName));let added=0;
-  for(const s of ns){
-    const k=s.planetId+'_'+s.siteName;
-    if(!keys.has(k)){if(!s.minedElements)s.minedElements=[];if(!s.depositData)s.depositData={};store.sites.push(s);keys.add(k);added++;}
-    else{
-      const ex=store.sites.find(x=>x.planetId+'_'+x.siteName===k);
-      if(ex){
-        ex.allElements=s.allElements;
-        // merge deposit data — incoming wins if it has entries
-        if(s.depositData&&Object.keys(s.depositData).length)ex.depositData=s.depositData;
-      }
-    }
-  }
-  return added;
-}
-
-
-
-function refreshUI(){updateHeader();updateStatsBar();updateFilters();renderPlanetSummary();renderTable();}
-
-function calcStats(){
-  const all=store.sites;
-  let activeQ=0,activeSectors=0,lowSectors=0,emptySectors=0,fullyMined=0;
-  for(const s of all){
-    const vis=s.allElements.filter(e=>activeRarities.has(getRarity(e)));
-    let sActive=0,sLow=0,sEmpty=0;
-    for(const e of vis){
-      const st=getSectorStatus(s,e);
-      if(st==='active')sActive++;
-      else if(st==='low')sLow++;
-      else sEmpty++;
-    }
-    activeSectors+=sActive;
-    lowSectors+=sLow;
-    emptySectors+=sEmpty;
-    if(sActive>0)activeQ++;
-    else fullyMined++;
-  }
-  return{activeQ,activeSectors,lowSectors,emptySectors,fullyMined};
-}
-function updateStatsBar(){
-  const has=store.sites.length>0;
-  const bar=document.getElementById('statsBar');
-  if(!has){bar.style.display='none';return;}
-  bar.style.display='';
-  const s=calcStats();
-  document.getElementById('statActive').textContent=s.activeQ.toLocaleString();
-  document.getElementById('statSectors').textContent=s.activeSectors.toLocaleString();
-  document.getElementById('statLow').textContent=s.lowSectors.toLocaleString();
-  document.getElementById('statEmpty').textContent=s.emptySectors.toLocaleString();
-  document.getElementById('statMined').textContent=s.fullyMined.toLocaleString();
-}
-function updateHeader(){
-  const active=store.sites.filter(s=>!isFullyMined(s)).length;
-  const mined=store.sites.filter(s=>isFullyMined(s)).length;
-  const newCount=store.sites.filter(s=>isNew(s)&&!isFullyMined(s)).length;
-  const glows=getGlowSet();
-  const foundGlow=[...new Set(store.sites.filter(s=>!isFullyMined(s)).flatMap(s=>s.allElements.filter(e=>glows.has(e)&&!isElMined(s,e))))];
-  const last=store.lastScan?'Last scan: '+new Date(store.lastScan).toLocaleString():'No data yet';
-  document.getElementById('headerMeta').innerHTML=
-    last+' &nbsp;·&nbsp; <span class="ok">'+active+' active</span>'+
-    (newCount>0?' &nbsp;·&nbsp; <span class="new">'+newCount+' new ✦</span>':'')+
-    ' &nbsp;·&nbsp; <span class="dim">'+mined+' fully mined</span>'+
-    (foundGlow.length>0?' &nbsp;·&nbsp; <span style="color:var(--warn)">⚡ '+foundGlow.join(', ')+'</span>':'');
-}
-
-function updateFilters(){
-  const has=store.sites.length>0;
-  document.getElementById('filtersBar').style.display=has?'':'none';
-  document.getElementById('resultsCard').style.display=has?'':'none';
-  if(!has){document.getElementById('planetSummary').style.display='none';return;}
-  const pSel=document.getElementById('filterPlanet'),curP=pSel.value;
-  const planets=[...new Set(store.sites.map(s=>s.planetName))].sort();
-  pSel.innerHTML='<option value="">All Planets</option>'+planets.map(p=>'<option value="'+p+'">'+p+'</option>').join('');
-  pSel.value=curP;
-}
-
-function renderPlanetSummary(){
-  if(!store.sites.length){document.getElementById('planetSummary').style.display='none';return;}
-  document.getElementById('planetSummary').style.display='';
-  const byName={};
-  for(const s of store.sites){if(!byName[s.planetName])byName[s.planetName]={name:s.planetName,id:s.planetId,sites:[]};byName[s.planetName].sites.push(s);}
-  const glows=getGlowSet();
-  const knownNames=new Set(ALL_PLANETS.map(p=>p.name));
-  const extraPlanets=Object.keys(byName).filter(n=>!knownNames.has(n)).map(n=>({name:n,id:byName[n].id}));
-  const allPlanets=[...ALL_PLANETS,...extraPlanets];
-  const scored=allPlanets.map(p=>{
-    const data=byName[p.name];const sites=data?data.sites:[];
-    const activeSites=sites.filter(s=>!isFullyMined(s));
-    const newSites=sites.filter(s=>isNew(s)&&!isFullyMined(s));
-    const glowEls=[...new Set(activeSites.flatMap(s=>s.allElements.filter(e=>glows.has(e)&&activeRarities.has(getRarity(e))&&getSectorStatus(s,e)==='active')))];
-    const rareCount=glowEls.filter(e=>getRarity(e)==='rare').length;
-    const epicCount=glowEls.filter(e=>getRarity(e)==='epic').length;
-    const score=epicCount*10+rareCount;
-    return{...p,sites,activeSites,newSites,glowEls,rareCount,epicCount,score};
-  });
-  scored.sort((a,b)=>{
-    const aHas=a.sites.length>0,bHas=b.sites.length>0;
-    if(aHas&&!bHas)return -1;if(!aHas&&bHas)return 1;
-    if(aHas&&bHas&&b.score!==a.score)return b.score-a.score;
-    return a.name.localeCompare(b.name);
-  });
-  document.getElementById('planetCards').innerHTML=scored.map(p=>{
-    const hasResults=p.sites.length>0;
-    const visEls=[...new Set(p.activeSites.flatMap(s=>s.allElements.filter(e=>activeRarities.has(getRarity(e))&&getSectorStatus(s,e)==='active')))].sort();
-    const showEls=p.glowEls.length>0?p.glowEls:visEls.slice(0,6);
-    const pills=showEls.map(e=>'<span class="pill pill-'+getRarity(e)+(isGlow(e)?' pill-glow':'')+'" style="font-size:.63rem;padding:1px 5px;margin:1px">'+e+'</span>').join('');
-    return '<div class="planet-card '+(hasResults?'has-results':'no-results')+'" '+(hasResults?'onclick="filterByPlanet(\''+p.name+'\')" style="cursor:pointer"':'')+'>'+
-      '<div class="planet-card-header"><div><div class="planet-card-name">'+p.name+'</div>'+
-      '<div class="planet-card-meta">'+(hasResults?p.sites.length+' site'+(p.sites.length!==1?'s':''):'no data')+'</div></div>'+
-      '<div class="planet-card-right">'+
-        (p.newSites.length?'<span class="planet-badge badge-new">'+p.newSites.length+'✦</span>':'')+
-        (p.epicCount?'<span class="planet-badge badge-epic">'+p.epicCount+' epic</span>':'')+
-        (p.rareCount?'<span class="planet-badge badge-rare">'+p.rareCount+' rare</span>':'')+
-      '</div></div>'+
-      (hasResults&&pills?'<div class="planet-card-pills">'+pills+'</div>':'<div class="planet-card-empty">'+(hasResults?'no matching elements':'not yet scanned')+'</div>')+
-    '</div>';
-  }).join('');
-}
-
-function getFiltered(tab){
-  const fp=document.getElementById('filterPlanet')?.value||'';
-  return store.sites.filter(s=>{
-    if(fp&&s.planetName!==fp)return false;
-    if(elSearchFilter&&!s.allElements.includes(elSearchFilter))return false;
-    const vis=s.allElements.filter(e=>activeRarities.has(getRarity(e)));
-    if(tab==='mined') return vis.length>0&&vis.every(e=>isElEffectivelyDone(s,e));
-    if(tab==='low') return !vis.every(e=>isElEffectivelyDone(s,e))&&vis.some(e=>getSectorStatus(s,e)==='low');
-    // active: has at least one active sector
-    return vis.some(e=>getSectorStatus(s,e)==='active');
-  });
-}
-
-function renderTable(){
-  const active=getFiltered('active'),low=getFiltered('low'),mined=getFiltered('mined');
-  document.getElementById('countActive').textContent=active.length;
-  document.getElementById('countLow').textContent=low.length;
-  document.getElementById('countMined').textContent=mined.length;
-  const rows=currentResultTab==='active'?active:currentResultTab==='low'?low:mined;
-  const tbody=document.getElementById('resultsBody'),empty=document.getElementById('emptyState');
-  if(!rows.length){tbody.innerHTML='';empty.style.display='';return;}
-  empty.style.display='none';
-  const sizeCol={'small':'var(--dim2)','medium':'var(--accent2)','large':'var(--ok)','huge':'var(--warn)'};
-  const sorted=[...rows].sort((a,b)=>{const an=isNew(a)?0:1,bn=isNew(b)?0:1;if(an!==bn)return an-bn;return a.planetName.localeCompare(b.planetName);});
-  tbody.innerHTML=sorted.map(s=>{
-    const visEls=s.allElements.filter(e=>activeRarities.has(getRarity(e)));
-    // Filter pills by status matching the current tab
-    const pillEls=visEls.filter(e=>{
-      const st=getSectorStatus(s,e);
-      if(currentResultTab==='active') return st==='active';
-      if(currentResultTab==='low') return st==='low';
-      return true; // fully mined tab shows all
-    });
-    const allPills=pillEls.map(e=>{
-      const m=isElMined(s,e);
-      if(currentResultTab==='low'){
-        // read-only in low tab
-        return '<span class="'+pillCls(e,false)+'" style="cursor:default" title="'+(ELEMENT_NAMES[e]||e)+'">'+e+'</span>';
-      }
-      return'<span class="'+pillCls(e,false)+'" style="cursor:default" title="'+(ELEMENT_NAMES[e]||e)+'">'+e+'</span>';
-    }).join('');
-    const deps=s.depositData||{};
-    const qtyHtml=pillEls.filter(e=>deps[e]).map(e=>{
-      const d=deps[e];const col=sizeCol[d.size]||'var(--dim2)';
-      return '<span style="white-space:nowrap;margin-right:10px;display:inline-flex;align-items:center;gap:5px">'+
-        '<span class="pill pill-'+getRarity(e)+'" style="font-size:.68rem;padding:1px 6px;cursor:default">'+e+'</span>'+
-        '<span style="color:'+col+';font-size:.85rem;font-family:var(--sans);font-weight:600">'+Number(d.qty).toLocaleString()+'</span></span>';
-    }).join('');
-    const sizeHtml=pillEls.filter(e=>deps[e]).map(e=>{
-      const d=deps[e];const col=sizeCol[d.size]||'var(--dim2)';
-      return '<span style="white-space:nowrap;margin-right:10px;display:inline-flex;align-items:center;gap:5px">'+
-        '<span class="pill pill-'+getRarity(e)+'" style="font-size:.68rem;padding:1px 6px;cursor:default">'+e+'</span>'+
-        '<span style="color:'+col+';font-size:.82rem;font-family:var(--sans);font-weight:600;text-transform:capitalize">'+d.size+'</span></span>';
-    }).join('');
-    const isNewSite=isNew(s)&&!isFullyMined(s);
-    const rowClass=(isFullyMined(s)?'fully-mined-row':'')+(isNewSite?' new-row':'');
-    const glowCount=s.allElements.filter(e=>isGlow(e)&&activeRarities.has(getRarity(e))&&getSectorStatus(s,e)==='active').length;
-    return'<tr class="'+rowClass+'">'+
-      '<td><div class="planet-name">'+s.planetName+'</div><div class="planet-id">ID: '+s.planetId+'</div></td>'+
-      '<td><span class="site-name">'+s.siteName+'</span>'+(isNewSite?'<span class="new-badge">NEW ✦</span>':'')+(glowCount>0?'<span class="new-badge" style="background:rgba(255,140,40,.15);border-color:rgba(255,140,40,.5);color:var(--warn)">⚡ '+glowCount+'</span>':'')+'</td>'+
-      '<td>'+allPills+'</td>'+
-      '<td style="min-width:130px">'+(qtyHtml||'<span style="color:var(--dim);font-size:.82rem">—</span>')+'</td>'+
-      '<td style="min-width:100px">'+(sizeHtml||'<span style="color:var(--dim);font-size:.82rem">—</span>')+'</td>'+
-
-      
-    '</tr>';
-  }).join('');
-}
-
-// ── SCRIPTS (kept as plain backtick templates — no nesting issues) ──────────
-
-
-
-function switchResultTab(name){currentResultTab=name;['tabActive','tabLow','tabMined'].forEach(id=>document.getElementById(id).classList.remove('active'));document.getElementById(name==='active'?'tabActive':name==='low'?'tabLow':'tabMined').classList.add('active');renderTable();}
-function log(boxId,msg,type='info'){const b=document.getElementById(boxId);b.style.display='block';const l=document.createElement('div');l.className='log-line log-'+type;l.textContent='['+new Date().toLocaleTimeString()+'] '+msg;b.appendChild(l);b.scrollTop=b.scrollHeight;}
+// ── SHARE CONFIG ─────────────────────────────────────────────────
+const SHARE_URL = "https://raw.githubusercontent.com/theidxn/ElementTracker/main/data.json";
+// ─────────────────────────────────────────────────────────────────
 
 async function loadSharedData(){
   if(!SHARE_URL){refreshUI();return;}
@@ -557,10 +370,371 @@ async function loadSharedData(){
     refreshUI();
   }
 }
+
+let store=loadStore();
+if(!store.importHistory)store.importHistory=[];
+let currentResultTab='active';
+let activeRarities=new Set(['common','uncommon','rare','epic']);
+let elSearchFilter=null;
+let currentSort={col:null,dir:'asc'};
+let viewMode='flat';
+let collapsedPlanets=new Set();
+
+function setTheme(name){document.body.className='theme-'+name;document.querySelectorAll('.theme-btn').forEach(b=>b.classList.remove('active'));const btn=document.getElementById('btn-'+name);if(btn)btn.classList.add('active');store.theme=name;saveStore();buildStarfield();}
+
+function buildStarfield(){
+  const sf=document.getElementById('starfield');sf.innerHTML='';
+  for(let i=0;i<180;i++){const s=document.createElement('div');s.className='star';const size=Math.random()<.05?Math.random()*2+2:Math.random()*1.5+.5;s.style.cssText=`width:${size}px;height:${size}px;left:${Math.random()*100}%;top:${Math.random()*100}%;--d:${2+Math.random()*4}s;--delay:${-(Math.random()*6)}s;--min-op:${.05+Math.random()*.15};--max-op:${.4+Math.random()*.6};`;sf.appendChild(s);}
+  for(let i=0;i<5;i++){const s=document.createElement('div');s.className='star shooting';const angle=Math.random()*40+10,dist=200+Math.random()*300;s.style.cssText=`left:${Math.random()*80}%;top:${Math.random()*60}%;--d:${6+Math.random()*8}s;--delay:${-(Math.random()*10)}s;--dx:${Math.cos(angle*Math.PI/180)*dist};--dy:${Math.sin(angle*Math.PI/180)*dist};`;sf.appendChild(s);}
+}
+
+function getSectorStatus(site,el){
+  if(site.minedElements&&site.minedElements.includes(el))return'empty';
+  const dep=site.depositData&&site.depositData[el];
+  if(dep&&dep.qty===0)return'empty';
+  // Epics never go low — always considered active regardless of quantity
+  const r=getRarity(el);
+  if(r==='epic')return'active';
+  const LOW_THRESHOLD={rare:150,uncommon:300,common:500};
+  if(dep&&dep.qty<(LOW_THRESHOLD[r]||150))return'low';
+  return'active';
+}
+function isElEffectivelyDone(site,el){return getSectorStatus(site,el)!=='active';}
+function isFullyMined(site){if(!site.allElements.length)return false;return site.allElements.every(e=>isElEffectivelyDone(site,e));}
+function isElMined(site,el){return site.minedElements&&site.minedElements.includes(el);}
+function toggleElementMined(siteId,el){const site=store.sites.find(s=>s.id===siteId);if(!site)return;if(!site.minedElements)site.minedElements=[];if(site.minedElements.includes(el))site.minedElements=site.minedElements.filter(x=>x!==el);else site.minedElements.push(el);saveStore();refreshUI();}
+
+function markAllMined(siteId){
+  const site=store.sites.find(s=>s.id===siteId);if(!site)return;
+  if(!site.minedElements)site.minedElements=[];
+  site.allElements.filter(e=>getSectorStatus(site,e)==='active').forEach(e=>{if(!site.minedElements.includes(e))site.minedElements.push(e);});
+  saveStore();refreshUI();
+}
+function unmarkAllMined(siteId){const site=store.sites.find(s=>s.id===siteId);if(!site)return;site.minedElements=[];saveStore();refreshUI();}
+function deleteSite(id){store.sites=store.sites.filter(x=>x.id!==id);saveStore();refreshUI();}
+function clearAll(){if(!confirm('Clear all tracked sites?'))return;store={sites:[],lastScan:null,prevScanIds:[],theme:store.theme,importHistory:store.importHistory};saveStore();refreshUI();}
+function isNew(site){if(!store.prevScanIds?.length)return false;return!store.prevScanIds.includes(site.id);}
+
+
+function sortBy(col){
+  if(currentSort.col===col)currentSort.dir=currentSort.dir==='asc'?'desc':'asc';
+  else{currentSort.col=col;currentSort.dir='asc';}
+  document.querySelectorAll('th.sortable').forEach(t=>{t.classList.remove('sort-asc','sort-desc');});
+  const th=document.getElementById('th-'+col);if(th)th.classList.add(currentSort.dir==='asc'?'sort-asc':'sort-desc');
+  renderTable();
+}
+
+function setViewMode(mode,btn){viewMode=mode;document.querySelectorAll('.vt-btn').forEach(b=>b.classList.remove('active'));btn.classList.add('active');renderTable();}
+function togglePlanetGroup(planet){if(collapsedPlanets.has(planet))collapsedPlanets.delete(planet);else collapsedPlanets.add(planet);renderTable();}
+
+function onElSearch(){const q=document.getElementById('elSearch').value.toLowerCase().trim();if(!q){elSearchFilter=null;renderTable();renderPlanetSummary();openElDropdown();return;}openElDropdown(q);}
+function openElDropdown(q){
+  const dd=document.getElementById('elDropdown');
+  const allEls=[...new Set(store.sites.flatMap(s=>s.allElements))].sort((a,b)=>(ELEMENT_NAMES[a]||a).localeCompare(ELEMENT_NAMES[b]||b));
+  const query=q||document.getElementById('elSearch').value.toLowerCase().trim();
+  const filtered=allEls.filter(sym=>{if(!query)return true;const name=(ELEMENT_NAMES[sym]||'').toLowerCase();return sym.toLowerCase().includes(query)||name.includes(query);}).slice(0,query?20:200);
+  if(!filtered.length){dd.classList.remove('open');return;}
+  dd.innerHTML=filtered.map(sym=>'<div class="el-dropdown-item" onmousedown="selectElFilter(\''+sym+'\')"><span class="pill pill-'+getRarity(sym)+'" style="padding:1px 6px;font-size:.68rem">'+sym+'</span><span style="color:var(--dim2);font-size:.75rem">'+(ELEMENT_NAMES[sym]||'')+'</span></div>').join('');
+  dd.classList.add('open');
+}
+function closeElDropdown(){document.getElementById('elDropdown').classList.remove('open');}
+function selectElFilter(sym){elSearchFilter=sym;document.getElementById('elSearch').value=(ELEMENT_NAMES[sym]||sym)+' ('+sym+')';closeElDropdown();renderTable();renderPlanetSummary();}
+function clearElSearch(){document.getElementById('elSearch').value='';elSearchFilter=null;renderTable();renderPlanetSummary();}
+function filterByPlanet(name){const sel=document.getElementById('filterPlanet');if(sel.value===name){sel.value='';}else{sel.value=name;}renderTable();document.getElementById('resultsCard').scrollIntoView({behavior:'smooth'});}
+function toggleRarity(r){if(activeRarities.has(r))activeRarities.delete(r);else activeRarities.add(r);document.getElementById('rc-'+r).classList.toggle('on',activeRarities.has(r));renderTable();renderPlanetSummary();}
+
+function handleDrop(e){e.preventDefault();document.getElementById('dropZone').classList.remove('over');if(e.dataTransfer.files[0])readCsvFile(e.dataTransfer.files[0]);}
+function handleFileInput(inp){if(inp.files[0])readCsvFile(inp.files[0]);}
+function readCsvFile(f){const r=new FileReader();r.onload=e=>importCsv(e.target.result,'file:'+f.name,'importLog');r.readAsText(f);}
+
+
+function importCsv(text,source,logBoxId){
+  const box=logBoxId||'importLog';document.getElementById(box).innerHTML='';
+  const lines=text.trim().split('\n');
+  if(lines.length<2){log(box,'No data rows.','err');return;}
+  const headers=lines[0].split(',').map(h=>h.replace(/"/g,'').trim().toLowerCase());
+  const sites=[];
+  for(let i=1;i<lines.length;i++){
+    const vals=[];let cur='',inQ=false;
+    for(let ci=0;ci<lines[i].length;ci++){const ch=lines[i][ci];if(ch==='"'){if(inQ&&lines[i][ci+1]==='"'){cur+='"';ci++;}else inQ=!inQ;}else if(ch===','&&!inQ){vals.push(cur.trim());cur='';}else cur+=ch;}
+    vals.push(cur.trim());
+    const obj={};headers.forEach((h,j)=>obj[h]=vals[j]||'');
+    const pname=obj['planet name']||obj['planetname']||'';if(!pname)continue;
+    const pid=obj['planet id']||obj['planetid']||'';const sname=obj['site name']||obj['sitename']||'';
+    const allEls=(obj['all elements']||obj['allelements']||obj['elements']||'').split(';').filter(Boolean);
+    let depositData={};try{const raw=obj['deposit data']||obj['depositdata']||'';if(raw)depositData=JSON.parse(raw);}catch(e){}
+    sites.push({id:pid+'_'+sname+'_imp'+i,planetId:pid,planetName:pname,siteName:sname,allElements:allEls,depositData,minedElements:[],foundAt:obj['found at']||obj['foundat']||new Date().toISOString(),source:source||'csv'});
+  }
+  const added=mergeSites(sites);saveStore();addImportHistory(source||'CSV file',sites.length,added);
+  log(box,'Imported '+sites.length+' rows, '+added+' new sites added.','ok');refreshUI();
+}
+
+function mergeSites(ns){
+  const keys=new Set(store.sites.map(s=>s.planetId+'_'+s.siteName));let added=0;
+  for(const s of ns){
+    const k=s.planetId+'_'+s.siteName;
+    if(!keys.has(k)){if(!s.minedElements)s.minedElements=[];if(!s.depositData)s.depositData={};store.sites.push(s);keys.add(k);added++;}
+    else{const ex=store.sites.find(x=>x.planetId+'_'+x.siteName===k);if(ex){ex.allElements=s.allElements;if(s.depositData&&Object.keys(s.depositData).length)ex.depositData=s.depositData;}}
+  }
+  return added;
+}
+
+
+function exportCsv(){
+  const rows=[['Planet ID','Planet Name','Site Name','All Elements','Deposit Data','Mined Elements','Notes','Found At']];
+  store.sites.forEach(s=>rows.push([s.planetId,s.planetName,s.siteName,s.allElements.join(';'),JSON.stringify(s.depositData||{}),(s.minedElements||[]).join(';'),s.note||'',s.foundAt||'']));
+  const csv=rows.map(r=>r.map(v=>'"'+String(v).replace(/"/g,'""')+'"').join(',')).join('\n');
+  const a=document.createElement('a');a.href='data:text/csv;charset=utf-8,'+encodeURIComponent(csv);a.download='zerog_elements_'+new Date().toISOString().slice(0,10)+'.csv';a.click();
+}
+function exportShareData(){
+  const payload=JSON.stringify({sites:store.sites,lastScan:store.lastScan,exportedAt:new Date().toISOString()});
+  const a=document.createElement('a');a.href='data:application/json;charset=utf-8,'+encodeURIComponent(payload);a.download='zerog_share_'+new Date().toISOString().slice(0,10)+'.json';a.click();
+}
+
+function refreshUI(){updateHeader();updateStatsBar();updateFilters();renderPlanetSummary();renderTable();renderHistory();updateStickyBar();}
+
+function calcStats(){
+  const all=store.sites;let activeQ=0,activeSectors=0,lowSectors=0,emptySectors=0,fullyMined=0;
+  for(const s of all){const vis=s.allElements.filter(e=>activeRarities.has(getRarity(e)));let sA=0,sL=0,sE=0;for(const e of vis){const st=getSectorStatus(s,e);if(st==='active')sA++;else if(st==='low')sL++;else sE++;}activeSectors+=sA;lowSectors+=sL;emptySectors+=sE;if(sA>0)activeQ++;else fullyMined++;}
+  return{activeQ,activeSectors,lowSectors,emptySectors,fullyMined};
+}
+function updateStatsBar(){
+  const has=store.sites.length>0;const bar=document.getElementById('statsBar');if(!has){bar.style.display='none';return;}bar.style.display='';
+  const s=calcStats();['statActive','statSectors','statLow','statMined'].forEach((id,i)=>{document.getElementById(id).textContent=[s.activeQ,s.activeSectors,s.lowSectors,s.fullyMined][i].toLocaleString();});
+}
+function updateHeader(){
+  const active=store.sites.filter(s=>!isFullyMined(s)).length,mined=store.sites.filter(s=>isFullyMined(s)).length,newCount=store.sites.filter(s=>isNew(s)&&!isFullyMined(s)).length;
+  const glows=getGlowSet();const foundGlow=[...new Set(store.sites.filter(s=>!isFullyMined(s)).flatMap(s=>s.allElements.filter(e=>glows.has(e)&&!isElMined(s,e))))];
+  const last=store.lastScan?'Last scan: '+new Date(store.lastScan).toLocaleString():'No data yet';
+  document.getElementById('headerMeta').innerHTML=last+' &nbsp;&middot;&nbsp; <span class="ok">'+active+' active</span>'+(newCount>0?' &nbsp;&middot;&nbsp; <span class="new">'+newCount+' new \u2736</span>':'')+' &nbsp;&middot;&nbsp; <span class="dim">'+mined+' fully mined</span>'+(foundGlow.length>0?' &nbsp;&middot;&nbsp; <span style="color:var(--warn)">\u26a1 '+foundGlow.join(', ')+'</span>':'');
+}
+
+function updateStickyBar(){
+  const bar=document.getElementById('stickyBar');
+  const activeSites=store.sites.filter(s=>!isFullyMined(s));
+  if(!activeSites.length){bar.style.display='none';return;}bar.style.display='flex';
+  const epics=[...new Set(activeSites.flatMap(s=>s.allElements.filter(e=>getRarity(e)==='epic'&&getSectorStatus(s,e)==='active')))].sort();
+  const rares=[...new Set(activeSites.flatMap(s=>s.allElements.filter(e=>getRarity(e)==='rare'&&getSectorStatus(s,e)==='active')))].sort();
+  document.getElementById('sbarEpicCount').textContent=epics.length;document.getElementById('sbarRareCount').textContent=rares.length;
+  document.getElementById('sbarEpicPills').innerHTML=epics.slice(0,14).map(e=>'<span class="sbar-pill sbar-pill-epic" title="'+(ELEMENT_NAMES[e]||e)+'">'+e+'</span>').join('');
+  const sep=document.getElementById('sbarRareSep');if(sep)sep.style.display=(epics.length&&rares.length)?'':'none';
+  document.getElementById('sbarRarePills').innerHTML=rares.slice(0,14).map(e=>'<span class="sbar-pill sbar-pill-rare" title="'+(ELEMENT_NAMES[e]||e)+'">'+e+'</span>').join('');
+}
+
+function updateFilters(){
+  const has=store.sites.length>0;document.getElementById('filtersBar').style.display=has?'':'none';document.getElementById('resultsCard').style.display=has?'':'none';
+  if(!has){document.getElementById('planetSummary').style.display='none';return;}
+  const pSel=document.getElementById('filterPlanet'),curP=pSel.value;
+  pSel.innerHTML='<option value="">All Planets</option>'+[...new Set(store.sites.map(s=>s.planetName))].sort().map(p=>'<option value="'+p+'">'+p+'</option>').join('');
+  pSel.value=curP;
+}
+
+function renderPlanetSummary(){
+  if(!store.sites.length){document.getElementById('planetSummary').style.display='none';return;}
+  document.getElementById('planetSummary').style.display='';
+  const byName={};for(const s of store.sites){if(!byName[s.planetName])byName[s.planetName]={sites:[]};byName[s.planetName].sites.push(s);}
+  const knownNames=new Set(ALL_PLANETS.map(p=>p.name));
+  const extraPlanets=Object.keys(byName).filter(n=>!knownNames.has(n)).map(n=>({name:n,id:byName[n].sites[0]?.planetId}));
+  const allPlanets=[...ALL_PLANETS,...extraPlanets];
+  const TIERS=['epic','rare','uncommon','common'];
+  const TIER_ORDER={epic:3,rare:2,uncommon:1,common:0};
+
+  const scored=allPlanets.map(p=>{
+    const data=byName[p.name];const sites=data?data.sites:[];
+    const newSites=sites.filter(s=>isNew(s)&&!isFullyMined(s));
+    // Count unique active/total elements per rarity tier across all sites on this planet
+    const tierActive={epic:new Set(),rare:new Set(),uncommon:new Set(),common:new Set()};
+    const tierTotal={epic:new Set(),rare:new Set(),uncommon:new Set(),common:new Set()};
+    for(const s of sites){
+      for(const e of s.allElements){
+        const r=getRarity(e);
+        tierTotal[r].add(e);
+        if(getSectorStatus(s,e)==='active')tierActive[r].add(e);
+      }
+    }
+    // Active site count respects current rarity filter (mirrors getFiltered logic)
+    const activeSiteCount=sites.filter(s=>{
+      const all=s.allElements;
+      const siteTiers=all.map(e=>getRarity(e)).filter(r=>activeRarities.has(r));
+      if(!siteTiers.length)return false;
+      const siteHighest=siteTiers.reduce((best,r)=>TIER_ORDER[r]>TIER_ORDER[best]?r:best,'common');
+      return all.filter(e=>getRarity(e)===siteHighest&&activeRarities.has(getRarity(e))).some(e=>getSectorStatus(s,e)==='active');
+    }).length;
+    const epicCount=tierActive.epic.size,rareCount=tierActive.rare.size;
+    return{...p,sites,newSites,tierActive,tierTotal,activeSiteCount,epicCount,rareCount,score:epicCount*10+rareCount};
+  });
+
+  scored.sort((a,b)=>{const aH=a.sites.length>0,bH=b.sites.length>0;if(aH&&!bH)return -1;if(!aH&&bH)return 1;if(aH&&bH&&b.score!==a.score)return b.score-a.score;return a.name.localeCompare(b.name);});
+
+  document.getElementById('planetCards').innerHTML=scored.map(p=>{
+    const hasResults=p.sites.length>0;
+    let breakdownHtml='';
+    if(hasResults){
+      const rows=TIERS.filter(r=>p.tierTotal[r].size>0).map(r=>{
+        const active=p.tierActive[r].size,total=p.tierTotal[r].size;
+        const dimmed=!activeRarities.has(r);
+        // Bar shows active/total ratio for this planet only — 100% = all elements active
+        const pct=total>0?Math.round((active/total)*100):0;
+        return'<div class="rb-row'+(dimmed?' rb-dimmed':'')+'">'+
+          '<span class="rb-label rb-label-'+r+'">'+r+'</span>'+
+          '<span class="rb-count rb-count-'+r+'">'+active+'</span>'+
+          '<span style="color:var(--dim2);font-size:.62rem">/'+total+'</span>'+
+          '<div class="rb-bar-wrap"><div class="rb-bar rb-bar-'+r+'" style="width:'+pct+'%"></div></div>'+
+        '</div>';
+      });
+      breakdownHtml=rows.length?'<div class="rarity-breakdown">'+rows.join('')+'</div>':'<div class="planet-card-empty">no matching elements</div>';
+    } else {
+      breakdownHtml='<div class="planet-card-empty">not yet scanned</div>';
+    }
+    const sitesMeta=hasResults
+      ?'<span class="planet-card-meta-active">'+p.activeSiteCount+' active</span> <span class="planet-card-meta-total">/ '+p.sites.length+'</span>'
+      :'no data';
+        return'<div class="planet-card '+(hasResults?'has-results':'no-results')+'" '+(hasResults?'onclick="filterByPlanet(\''+p.name+'\')" style="cursor:pointer"':'')+'>'+
+      '<div class="planet-card-header"><div><div class="planet-card-name">'+p.name+'</div><div class="planet-card-meta">'+sitesMeta+'</div></div>'+
+      '<div class="planet-card-right">'+
+        (p.newSites.length?'<span class="planet-badge badge-new">'+p.newSites.length+'✶</span>':'')+
+        (p.epicCount?'<span class="planet-badge badge-epic">'+p.epicCount+' epic</span>':'')+
+        (p.rareCount?'<span class="planet-badge badge-rare">'+p.rareCount+' rare</span>':'')+
+      '</div></div>'+
+      breakdownHtml+
+    '</div>';
+  }).join('');
+}
+
+function getFiltered(tab){
+  const fp=document.getElementById('filterPlanet')?.value||'';
+  // Priority order for classification — higher tiers take precedence
+  const TIER={epic:3,rare:2,uncommon:1,common:0};
+  // Find the highest rarity tier the user currently has ticked
+  const highestTicked=['epic','rare','uncommon','common'].find(r=>activeRarities.has(r))||'common';
+  return store.sites.filter(s=>{
+    if(fp&&s.planetName!==fp)return false;
+    if(elSearchFilter&&!s.allElements.includes(elSearchFilter))return false;
+    const all=s.allElements;
+    if(!all.some(e=>activeRarities.has(getRarity(e))))return false;
+    // Classify based on the HIGHEST ticked rarity present on the site.
+    // e.g. if rare+common ticked and site has both, only the rare elements
+    // determine which tab it belongs to — active common elements are ignored
+    // for tab placement if a higher ticked rarity is present.
+    const siteTiers=all.map(e=>getRarity(e)).filter(r=>activeRarities.has(r));
+    const siteHighest=siteTiers.reduce((best,r)=>TIER[r]>TIER[best]?r:best,'common');
+    // Only look at elements of the site's highest present ticked rarity
+    const classifyEls=all.filter(e=>getRarity(e)===siteHighest&&activeRarities.has(getRarity(e)));
+    const classifyActive=classifyEls.some(e=>getSectorStatus(s,e)==='active');
+    if(tab==='done')return !classifyActive;
+    return classifyActive;
+  });
+}
+
+const SIZE_ORDER={huge:0,large:1,medium:2,small:3,'':4};
+function applySort(rows){
+  const {col,dir}=currentSort;if(!col)return rows;const mul=dir==='asc'?1:-1;
+  return [...rows].sort((a,b)=>{
+    if(col==='planet')return mul*a.planetName.localeCompare(b.planetName);
+    if(col==='site')return mul*a.siteName.localeCompare(b.siteName);
+    if(col==='qty'){const qa=Math.max(0,...a.allElements.map(e=>(a.depositData&&a.depositData[e])?a.depositData[e].qty:0));const qb=Math.max(0,...b.allElements.map(e=>(b.depositData&&b.depositData[e])?b.depositData[e].qty:0));return mul*(qb-qa);}
+
+    return 0;
+  });
+}
+
+function renderTable(){
+  const active=getFiltered('active'),done=getFiltered('done');
+  document.getElementById('countActive').textContent=active.length;document.getElementById('countDone').textContent=done.length;
+  const rows=currentResultTab==='active'?active:done;
+  const tbody=document.getElementById('resultsBody'),empty=document.getElementById('emptyState');
+  if(!rows.length){tbody.innerHTML='';empty.style.display='';return;}empty.style.display='none';
+  const sizeCol={small:'var(--dim2)',medium:'var(--accent2)',large:'var(--ok)',huge:'var(--warn)'};
+  if(viewMode==='grouped')renderGrouped(rows,tbody,sizeCol);else renderFlat(rows,tbody,sizeCol);
+}
+
+function buildRowHtml(s,sizeCol){
+  const visEls=s.allElements.filter(e=>activeRarities.has(getRarity(e)));
+  const pillEls=visEls.filter(e=>{const st=getSectorStatus(s,e);if(currentResultTab==='active')return st==='active';return true;});
+  const deps=s.depositData||{};
+  const LOW_T={rare:150,uncommon:300,common:500};
+  // Price colour bands (bottom/mid/top third per rarity)
+  const PRICE_BANDS={
+    epic: [2250,3835], rare: [275,358.5], uncommon: [38.5,57], common: [5,7]
+  };
+  function priceColor(sym){
+    const r=getRarity(sym),p=PRICE_UNC[sym],b=PRICE_BANDS[r];
+    if(p==null||!b)return'#e8eaf0';
+    if(p<b[0])return'#ff6b6b';
+    if(p<b[1])return'#ffb84d';
+    return'#6bffb8';
+  }
+  function qtyColor(qty){
+    if(qty==null)return'var(--dim)';
+    if(qty===0)return'#ff6b6b';
+    if(qty<=500)return'#ff6b6b';
+    if(qty<=2500)return'#ffb84d';
+    return'#6bffb8';
+  }
+  const elData=pillEls.map(e=>{
+    const m=isElMined(s,e),fn=ELEMENT_NAMES[e]||e;
+    const dep=deps[e];
+    const qty=dep&&dep.qty!=null?Number(dep.qty).toLocaleString():'—';
+    const qtyCol=dep?qtyColor(dep.qty):'var(--dim)';
+    const pc=priceColor(e);
+    const unc=PRICE_UNC[e]!=null?'<span style="color:'+pc+';font-weight:600">'+PRICE_UNC[e].toLocaleString()+'</span><span class="price-label"> UNc</span>':'<span style="color:var(--dim)">—</span>';
+    const gc=PRICE_GC[e]!=null?'<span style="color:var(--warn);font-weight:600">'+PRICE_GC[e]+'</span><span class="price-label"> 0Gc</span>':'';
+    const pill='<span class="'+pillCls(e,m)+'" style="cursor:default">'+(m?'<s>'+e+'</s>':e)+' <span class="el-fullname">'+fn+'</span></span>';
+    return{pill,qty,qtyCol,unc,gc};
+  });
+  const pillCol=elData.map((d,i)=>'<div class="el-col-row" data-elidx="'+i+'"><span class="el-pill-wrap" onmouseenter="hlRow(this,'+i+',true)" onmouseleave="hlRow(this,'+i+',false)">'+d.pill+'</span></div>').join('');
+  const qtyCol2=elData.map((d,i)=>'<div class="el-col-row el-col-qty" data-elidx="'+i+'" style="color:'+d.qtyCol+'">'+d.qty+'</div>').join('');
+  const uncCol=elData.map((d,i)=>'<div class="el-col-row" data-elidx="'+i+'">'+d.unc+'</div>').join('');
+  const gcCol=elData.map((d,i)=>'<div class="el-col-row" data-elidx="'+i+'">'+d.gc+'</div>').join('');
+  const isNewSite=isNew(s)&&!isFullyMined(s),glowCount=s.allElements.filter(e=>isGlow(e)&&activeRarities.has(getRarity(e))&&getSectorStatus(s,e)==='active').length;
+  const hasEpic=s.allElements.some(e=>getRarity(e)==='epic'&&getSectorStatus(s,e)==='active');
+  const hasRare=!hasEpic&&s.allElements.some(e=>getRarity(e)==='rare'&&getSectorStatus(s,e)==='active');
+  const rc=(isFullyMined(s)?'fully-mined-row':'')+(isNewSite?' new-row':'')+(hasEpic?' row-has-epic':'')+(hasRare?' row-has-rare':'');
+  return'<tr class="'+rc+'">'+
+    '<td><div class="planet-name">'+s.planetName+'</div><div class="planet-id">ID: '+s.planetId+'</div></td>'+
+    '<td><span class="site-name">'+s.siteName+'</span>'+(isNewSite?'<span class="new-badge">NEW ✶</span>':'')+(glowCount>0?'<span class="new-badge" style="background:rgba(255,140,40,.15);border-color:rgba(255,140,40,.5);color:var(--warn)">⚡ '+glowCount+'</span>':'')+'</td>'+
+    '<td class="el-col-pill">'+(pillCol||'—')+'</td>'+
+    '<td class="el-col-qty-td">'+(qtyCol2||'—')+'</td>'+
+    '<td class="el-col-unc-td">'+(uncCol||'—')+'</td>'+
+    '<td class="el-col-gc-td">'+(gcCol||'')+'</td>'+
+  '</tr>';
+}
+
+function renderFlat(rows,tbody,sizeCol){
+  const sorted=!currentSort.col?[...rows].sort((a,b)=>{const an=isNew(a)?0:1,bn=isNew(b)?0:1;if(an!==bn)return an-bn;return a.planetName.localeCompare(b.planetName);}):applySort(rows);
+  tbody.innerHTML=sorted.map(s=>buildRowHtml(s,sizeCol)).join('');
+}
+
+function renderGrouped(rows,tbody,sizeCol){
+  const groups={};rows.forEach(s=>{if(!groups[s.planetName])groups[s.planetName]=[];groups[s.planetName].push(s);});
+  const sortedPlanets=Object.keys(groups).sort();let html='';
+  sortedPlanets.forEach(planet=>{
+    const collapsed=collapsedPlanets.has(planet),cnt=groups[planet].length;
+    const epicCnt=[...new Set(groups[planet].flatMap(s=>s.allElements.filter(e=>getRarity(e)==='epic'&&getSectorStatus(s,e)==='active')))].length;
+    const rareCnt=[...new Set(groups[planet].flatMap(s=>s.allElements.filter(e=>getRarity(e)==='rare'&&getSectorStatus(s,e)==='active')))].length;
+    const badges=(epicCnt?'<span class="planet-badge badge-epic" style="margin-left:6px">'+epicCnt+' epic</span>':'')+(rareCnt?'<span class="planet-badge badge-rare" style="margin-left:4px">'+rareCnt+' rare</span>':'');
+    const esc=planet.replace(/\\/g,'\\\\').replace(/'/g,"\\'");
+    html+='<tr class="planet-group-header'+(collapsed?' collapsed':'')+'" onclick="togglePlanetGroup(\''+esc+'\')">';
+    html+='<td colspan="6"><span class="pgh-name">\uD83E\uDE90 '+planet+'</span><span class="pgh-meta"> '+cnt+' site'+(cnt!==1?'s':'')+badges+'</span><span class="collapse-icon">\u25BC</span></td></tr>';
+    if(!collapsed){html+=applySort(groups[planet]).map(s=>buildRowHtml(s,sizeCol)).join('');}
+  });
+  tbody.innerHTML=html;
+}
+
+
+function hlRow(el,idx,on){
+  // Find the parent tr and highlight all el-col-row divs with matching data-elidx
+  const tr=el.closest('tr');
+  if(!tr)return;
+  tr.querySelectorAll('.el-col-row[data-elidx="'+idx+'"]').forEach(d=>d.classList.toggle('el-row-hover',on));
+}
+
+function switchResultTab(name){currentResultTab=name;['tabActive','tabDone'].forEach(id=>document.getElementById(id).classList.remove('active'));document.getElementById(name==='active'?'tabActive':'tabDone').classList.add('active');renderTable();}
+function log(boxId,msg,type='info'){const b=document.getElementById(boxId);b.style.display='block';const l=document.createElement('div');l.className='log-line log-'+type;l.textContent='['+new Date().toLocaleTimeString()+'] '+msg;b.appendChild(l);b.scrollTop=b.scrollHeight;}
+
 buildStarfield();
 setTheme(store.theme||'deepspace');
 loadSharedData();
-
 </script>
 </body>
 </html>
