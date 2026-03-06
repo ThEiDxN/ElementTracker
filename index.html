@@ -274,8 +274,8 @@ tr.planet-group-header.collapsed .collapse-icon{transform:rotate(-90deg);}
   </div>
   <div class="rarity-filter">
     <span style="font-size:.75rem;color:var(--dim2)">Show:</span>
-    <label class="rarity-check rc-common on" id="rc-common" onclick="toggleRarity('common')"><span class="rarity-dot" style="background:#7aff7a"></span>Common</label>
-    <label class="rarity-check rc-uncommon on" id="rc-uncommon" onclick="toggleRarity('uncommon')"><span class="rarity-dot" style="background:#60c8ff"></span>Uncommon</label>
+    <label class="rarity-check rc-common" id="rc-common" onclick="toggleRarity('common')"><span class="rarity-dot" style="background:#7aff7a"></span>Common</label>
+    <label class="rarity-check rc-uncommon" id="rc-uncommon" onclick="toggleRarity('uncommon')"><span class="rarity-dot" style="background:#60c8ff"></span>Uncommon</label>
     <label class="rarity-check rc-rare on" id="rc-rare" onclick="toggleRarity('rare')"><span class="rarity-dot" style="background:#c87eff"></span>Rare</label>
     <label class="rarity-check rc-epic on" id="rc-epic" onclick="toggleRarity('epic')"><span class="rarity-dot" style="background:#ffb84d"></span>Epic</label>
   </div>
@@ -378,7 +378,7 @@ async function loadSharedData(){
 let store=loadStore();
 if(!store.importHistory)store.importHistory=[];
 let currentResultTab='active';
-let activeRarities=new Set(['common','uncommon','rare','epic']);
+let activeRarities=new Set(['rare','epic']);
 let elSearchFilter=null;
 let gcFilterOn=false;
 let showNewOnly=false;
