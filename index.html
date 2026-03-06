@@ -299,6 +299,13 @@ function closeElDropdown(){document.getElementById('elDropdown').classList.remov
 function selectElFilter(sym){elSearchFilter=sym;document.getElementById('elSearch').value=(ELEMENT_NAMES[sym]||sym)+' ('+sym+')';closeElDropdown();renderTable();renderPlanetSummary();}
 function clearElSearch(){document.getElementById('elSearch').value='';elSearchFilter=null;renderTable();renderPlanetSummary();}
 
+function filterByPlanet(name){
+  const sel=document.getElementById('filterPlanet');
+  if(sel.value===name){sel.value='';}
+  else{sel.value=name;}
+  renderTable();
+  document.getElementById('resultsCard').scrollIntoView({behavior:'smooth'});
+}
 function toggleRarity(r){
   if(activeRarities.has(r))activeRarities.delete(r);else activeRarities.add(r);
   document.getElementById('rc-'+r).classList.toggle('on',activeRarities.has(r));
@@ -441,7 +448,7 @@ function renderPlanetSummary(){
     const visEls=[...new Set(p.activeSites.flatMap(s=>s.allElements.filter(e=>activeRarities.has(getRarity(e))&&!isElMined(s,e))))].sort();
     const showEls=p.glowEls.length>0?p.glowEls:visEls.slice(0,6);
     const pills=showEls.map(e=>'<span class="pill pill-'+getRarity(e)+(isGlow(e)?' pill-glow':'')+'" style="font-size:.63rem;padding:1px 5px;margin:1px">'+e+'</span>').join('');
-    return '<div class="planet-card '+(hasResults?'has-results':'no-results')+'">'+
+    return '<div class="planet-card '+(hasResults?'has-results':'no-results')+'" '+(hasResults?'onclick="filterByPlanet(\''+p.name+'\')" style="cursor:pointer"':'')+'>'+
       '<div class="planet-card-header"><div><div class="planet-card-name">'+p.name+'</div>'+
       '<div class="planet-card-meta">'+(hasResults?p.sites.length+' site'+(p.sites.length!==1?'s':''):'no data')+'</div></div>'+
       '<div class="planet-card-right">'+
