@@ -283,6 +283,7 @@ tr.planet-group-header.collapsed .collapse-icon{transform:rotate(-90deg);}
     <button class="vt-btn active" id="vt-flat" onclick="setViewMode('flat',this)">≡ Flat</button>
     <button class="vt-btn" id="vt-grouped" onclick="setViewMode('grouped',this)">⊞ Grouped</button>
   </div>
+  <label class="rarity-check" id="gc-filter-btn" onclick="toggleGcFilter()" style="cursor:pointer"><span style="color:var(--warn);font-size:.8rem;font-weight:700">0Gc</span>&nbsp;Only</label>
   <div class="spacer"></div>
   <button class="btn btn-ghost btn-sm" onclick="exportCsv()">📋 Export CSV</button>
   <button class="btn btn-ghost btn-sm" onclick="exportShareData()">☁ Export Share Data</button>
@@ -309,9 +310,9 @@ tr.planet-group-header.collapsed .collapse-icon{transform:rotate(-90deg);}
       <th class="sortable" onclick="sortBy('planet')" id="th-planet">Planet</th>
       <th class="sortable" onclick="sortBy('site')" id="th-site">Site</th>
       <th>Elements</th>
-      <th style="padding-left:20px">Qty</th>
-      <th>UNc</th>
-      <th>0Gc</th>
+      <th class="sortable" onclick="sortBy('qty')" id="th-qty" style="padding-left:20px">Qty</th>
+      <th class="sortable" onclick="sortBy('unc')" id="th-unc">UNc</th>
+      <th class="sortable" onclick="sortBy('gc')" id="th-gc">0Gc</th>
 
     </tr></thead>
     <tbody id="resultsBody"></tbody></table>
@@ -376,6 +377,7 @@ if(!store.importHistory)store.importHistory=[];
 let currentResultTab='active';
 let activeRarities=new Set(['common','uncommon','rare','epic']);
 let elSearchFilter=null;
+let gcFilterOn=false;
 let currentSort={col:null,dir:'asc'};
 let viewMode='flat';
 let collapsedPlanets=new Set();
@@ -440,6 +442,12 @@ function openElDropdown(q){
 function closeElDropdown(){document.getElementById('elDropdown').classList.remove('open');}
 function selectElFilter(sym){elSearchFilter=sym;document.getElementById('elSearch').value=(ELEMENT_NAMES[sym]||sym)+' ('+sym+')';closeElDropdown();renderTable();renderPlanetSummary();}
 function clearElSearch(){document.getElementById('elSearch').value='';elSearchFilter=null;renderTable();renderPlanetSummary();}
+function toggleGcFilter(){
+  gcFilterOn=!gcFilterOn;
+  document.getElementById('gc-filter-btn').classList.toggle('on',gcFilterOn);
+  renderTable();renderPlanetSummary();
+}
+
 function filterByPlanet(name){const sel=document.getElementById('filterPlanet');if(sel.value===name){sel.value='';}else{sel.value=name;}renderTable();document.getElementById('resultsCard').scrollIntoView({behavior:'smooth'});}
 function toggleRarity(r){if(activeRarities.has(r))activeRarities.delete(r);else activeRarities.add(r);document.getElementById('rc-'+r).classList.toggle('on',activeRarities.has(r));renderTable();renderPlanetSummary();}
 
@@ -603,37 +611,46 @@ function renderPlanetSummary(){
 
 function getFiltered(tab){
   const fp=document.getElementById('filterPlanet')?.value||'';
-  // Priority order for classification — higher tiers take precedence
-  const TIER={epic:3,rare:2,uncommon:1,common:0};
-  // Find the highest rarity tier the user currently has ticked
-  const highestTicked=['epic','rare','uncommon','common'].find(r=>activeRarities.has(r))||'common';
   return store.sites.filter(s=>{
     if(fp&&s.planetName!==fp)return false;
     if(elSearchFilter&&!s.allElements.includes(elSearchFilter))return false;
-    const all=s.allElements;
-    if(!all.some(e=>activeRarities.has(getRarity(e))))return false;
-    // Classify based on the HIGHEST ticked rarity present on the site.
-    // e.g. if rare+common ticked and site has both, only the rare elements
-    // determine which tab it belongs to — active common elements are ignored
-    // for tab placement if a higher ticked rarity is present.
-    const siteTiers=all.map(e=>getRarity(e)).filter(r=>activeRarities.has(r));
-    const siteHighest=siteTiers.reduce((best,r)=>TIER[r]>TIER[best]?r:best,'common');
-    // Only look at elements of the site's highest present ticked rarity
-    const classifyEls=all.filter(e=>getRarity(e)===siteHighest&&activeRarities.has(getRarity(e)));
-    const classifyActive=classifyEls.some(e=>getSectorStatus(s,e)==='active');
-    if(tab==='done')return !classifyActive;
-    return classifyActive;
+    const visible=s.allElements.filter(e=>activeRarities.has(getRarity(e))&&(!gcFilterOn||(e in PRICE_GC)));
+    if(!visible.length)return false;
+    if(tab==='active') return visible.some(e=>getSectorStatus(s,e)==='active');
+    return visible.some(e=>getSectorStatus(s,e)!=='active');
   });
 }
 
 const SIZE_ORDER={huge:0,large:1,medium:2,small:3,'':4};
 function applySort(rows){
   const {col,dir}=currentSort;if(!col)return rows;const mul=dir==='asc'?1:-1;
+  function visEls(s){
+    return s.allElements.filter(e=>{
+      if(!activeRarities.has(getRarity(e)))return false;
+      if(gcFilterOn&&!(e in PRICE_GC))return false;
+      const st=getSectorStatus(s,e);
+      if(currentResultTab==='active')return st==='active';
+      return st!=='active';
+    });
+  }
   return [...rows].sort((a,b)=>{
     if(col==='planet')return mul*a.planetName.localeCompare(b.planetName);
     if(col==='site')return mul*a.siteName.localeCompare(b.siteName);
-    if(col==='qty'){const qa=Math.max(0,...a.allElements.map(e=>(a.depositData&&a.depositData[e])?a.depositData[e].qty:0));const qb=Math.max(0,...b.allElements.map(e=>(b.depositData&&b.depositData[e])?b.depositData[e].qty:0));return mul*(qb-qa);}
-
+    if(col==='qty'){
+      const qa=Math.max(0,...visEls(a).map(e=>(a.depositData&&a.depositData[e])?a.depositData[e].qty:0));
+      const qb=Math.max(0,...visEls(b).map(e=>(b.depositData&&b.depositData[e])?b.depositData[e].qty:0));
+      return mul*(qb-qa);
+    }
+    if(col==='unc'){
+      const pa=Math.max(0,...visEls(a).map(e=>PRICE_UNC[e]||0));
+      const pb=Math.max(0,...visEls(b).map(e=>PRICE_UNC[e]||0));
+      return mul*(pb-pa);
+    }
+    if(col==='gc'){
+      const pa=Math.max(0,...visEls(a).map(e=>PRICE_GC[e]||0));
+      const pb=Math.max(0,...visEls(b).map(e=>PRICE_GC[e]||0));
+      return mul*(pb-pa);
+    }
     return 0;
   });
 }
@@ -650,7 +667,15 @@ function renderTable(){
 
 function buildRowHtml(s,sizeCol){
   const visEls=s.allElements.filter(e=>activeRarities.has(getRarity(e)));
-  const pillEls=visEls.filter(e=>{const st=getSectorStatus(s,e);if(currentResultTab==='active')return st==='active';return true;});
+  const pillEls=visEls.filter(e=>{const st=getSectorStatus(s,e);if(currentResultTab==='active')return st==='active';return st!=='active';})
+    .sort((a,b)=>{
+      const col=currentSort.col;
+      if(col==='unc')return (PRICE_UNC[b]||0)-(PRICE_UNC[a]||0);
+      if(col==='gc')return (PRICE_GC[b]||0)-(PRICE_GC[a]||0);
+      const qa=(s.depositData&&s.depositData[a]&&s.depositData[a].qty!=null)?s.depositData[a].qty:-1;
+      const qb=(s.depositData&&s.depositData[b]&&s.depositData[b].qty!=null)?s.depositData[b].qty:-1;
+      return qb-qa;
+    });
   const deps=s.depositData||{};
   const LOW_T={rare:150,uncommon:300,common:500};
   // Price colour bands (bottom/mid/top third per rarity)
