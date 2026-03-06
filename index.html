@@ -284,6 +284,7 @@ tr.planet-group-header.collapsed .collapse-icon{transform:rotate(-90deg);}
     <button class="vt-btn" id="vt-grouped" onclick="setViewMode('grouped',this)">⊞ Grouped</button>
   </div>
   <label class="rarity-check" id="gc-filter-btn" onclick="toggleGcFilter()" style="cursor:pointer"><span style="color:var(--warn);font-size:.8rem;font-weight:700">0Gc</span>&nbsp;Only</label>
+  <label class="rarity-check" id="new-filter-btn" onclick="toggleNewFilter()" style="cursor:pointer"><span style="color:var(--new);font-size:.8rem;font-weight:700">✦</span>&nbsp;New Only</label>
   <div class="spacer"></div>
   <button class="btn btn-ghost btn-sm" onclick="exportCsv()">📋 Export CSV</button>
   <button class="btn btn-ghost btn-sm" onclick="exportShareData()">☁ Export Share Data</button>
@@ -360,7 +361,9 @@ async function loadSharedData(){
     if(!data.sites||!data.sites.length){refreshUI();return;}
     store.sites=data.sites;
     store.lastScan=data.lastScan||null;
-    store.prevScanIds=[];
+    store.prevScanIds=data.newSiteIds?.length
+      ? store.sites.filter(s=>!data.newSiteIds.includes(s.id)).map(s=>s.id)
+      : [];
     const banner=document.createElement('div');
     banner.style.cssText='background:#0d1a0d;border:1px solid #2a6a2a;border-radius:8px;padding:10px 16px;margin-bottom:16px;font-size:.8rem;color:#7aff7a;font-family:var(--mono);position:relative;z-index:1;';
     banner.innerHTML='👁 Viewing shared data — last updated '+new Date(data.exportedAt).toLocaleString();
@@ -378,6 +381,7 @@ let currentResultTab='active';
 let activeRarities=new Set(['common','uncommon','rare','epic']);
 let elSearchFilter=null;
 let gcFilterOn=false;
+let showNewOnly=false;
 let currentSort={col:null,dir:'asc'};
 let viewMode='flat';
 let collapsedPlanets=new Set();
@@ -442,6 +446,12 @@ function openElDropdown(q){
 function closeElDropdown(){document.getElementById('elDropdown').classList.remove('open');}
 function selectElFilter(sym){elSearchFilter=sym;document.getElementById('elSearch').value=(ELEMENT_NAMES[sym]||sym)+' ('+sym+')';closeElDropdown();renderTable();renderPlanetSummary();}
 function clearElSearch(){document.getElementById('elSearch').value='';elSearchFilter=null;renderTable();renderPlanetSummary();}
+function toggleNewFilter(){
+  showNewOnly=!showNewOnly;
+  document.getElementById('new-filter-btn').classList.toggle('on',showNewOnly);
+  renderTable();renderPlanetSummary();
+}
+
 function toggleGcFilter(){
   gcFilterOn=!gcFilterOn;
   document.getElementById('gc-filter-btn').classList.toggle('on',gcFilterOn);
@@ -614,6 +624,7 @@ function getFiltered(tab){
   return store.sites.filter(s=>{
     if(fp&&s.planetName!==fp)return false;
     if(elSearchFilter&&!s.allElements.includes(elSearchFilter))return false;
+    if(showNewOnly&&!isNew(s))return false;
     const visible=s.allElements.filter(e=>activeRarities.has(getRarity(e))&&(!gcFilterOn||(e in PRICE_GC)));
     if(!visible.length)return false;
     if(tab==='active') return visible.some(e=>getSectorStatus(s,e)==='active');
