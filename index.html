@@ -498,7 +498,7 @@ function renderTable(){
         // read-only in low tab
         return '<span class="'+pillCls(e,false)+'" style="cursor:default" title="'+(ELEMENT_NAMES[e]||e)+'">'+e+'</span>';
       }
-      return'<span class="'+pillCls(e,m)+'" onclick="toggleElementMined(\''+s.id+'\',\''+e+'\')" title="'+(ELEMENT_NAMES[e]||e)+' — click to toggle mined">'+(m?'<s>'+e+'</s>':e)+'</span>';
+      return'<span class="'+pillCls(e,false)+'" style="cursor:default" title="'+(ELEMENT_NAMES[e]||e)+'">'+e+'</span>';
     }).join('');
     const deps=s.depositData||{};
     const qtyHtml=pillEls.filter(e=>deps[e]).map(e=>{
