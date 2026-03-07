@@ -694,7 +694,17 @@ function renderTable(){
 
 function buildRowHtml(s,sizeCol){
   const visEls=s.allElements.filter(e=>activeRarities.has(getRarity(e)));
-  const pillEls=visEls.filter(e=>{const st=getSectorStatus(s,e);if(currentResultTab==='active')return st==='active';return st!=='active';})
+  const pillEls=visEls.filter(e=>{
+      const st=getSectorStatus(s,e);
+      const dep=s.depositData&&s.depositData[e];
+      const prev=s.prevDepositData&&s.prevDepositData[e];
+      const isDropped=!!(dep&&prev&&dep.qty!=null&&prev.qty!=null&&dep.qty<prev.qty);
+      if(showDroppedOnly) return isDropped&&(!gcFilterOn||(e in PRICE_GC));
+      if(currentResultTab==='active'&&st!=='active')return false;
+      if(currentResultTab!=='active'&&st==='active')return false;
+      if(gcFilterOn&&!(e in PRICE_GC))return false;
+      return true;
+    })
     .sort((a,b)=>{
       const col=currentSort.col;
       if(col==='unc')return (PRICE_UNC[b]||0)-(PRICE_UNC[a]||0);
