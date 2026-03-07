@@ -285,6 +285,7 @@ tr.planet-group-header.collapsed .collapse-icon{transform:rotate(-90deg);}
   </div>
   <label class="rarity-check" id="gc-filter-btn" onclick="toggleGcFilter()" style="cursor:pointer"><span style="color:var(--warn);font-size:.8rem;font-weight:700">0Gc</span>&nbsp;Only</label>
   <label class="rarity-check" id="new-filter-btn" onclick="toggleNewFilter()" style="cursor:pointer"><span style="color:var(--new);font-size:.8rem;font-weight:700">✦</span>&nbsp;New Only</label>
+  <label class="rarity-check" id="dropped-filter-btn" onclick="toggleDroppedFilter()" style="cursor:pointer"><span style="color:#ff6b6b;font-size:.8rem;font-weight:900">▼</span>&nbsp;Dropped Only</label>
   <div class="spacer"></div>
   <button class="btn btn-ghost btn-sm" onclick="exportCsv()">📋 Export CSV</button>
   <button class="btn btn-ghost btn-sm" onclick="exportShareData()">☁ Export Share Data</button>
@@ -382,6 +383,7 @@ let activeRarities=new Set(['rare','epic']);
 let elSearchFilter=null;
 let gcFilterOn=false;
 let showNewOnly=false;
+let showDroppedOnly=false;
 let currentSort={col:null,dir:'asc'};
 let viewMode='flat';
 let collapsedPlanets=new Set();
@@ -446,6 +448,12 @@ function openElDropdown(q){
 function closeElDropdown(){document.getElementById('elDropdown').classList.remove('open');}
 function selectElFilter(sym){elSearchFilter=sym;document.getElementById('elSearch').value=(ELEMENT_NAMES[sym]||sym)+' ('+sym+')';closeElDropdown();renderTable();renderPlanetSummary();}
 function clearElSearch(){document.getElementById('elSearch').value='';elSearchFilter=null;renderTable();renderPlanetSummary();}
+function toggleDroppedFilter(){
+  showDroppedOnly=!showDroppedOnly;
+  document.getElementById('dropped-filter-btn').classList.toggle('on',showDroppedOnly);
+  renderTable();
+}
+
 function toggleNewFilter(){
   showNewOnly=!showNewOnly;
   document.getElementById('new-filter-btn').classList.toggle('on',showNewOnly);
@@ -625,6 +633,14 @@ function getFiltered(tab){
     if(fp&&s.planetName!==fp)return false;
     if(elSearchFilter&&!s.allElements.includes(elSearchFilter))return false;
     if(showNewOnly&&!isNew(s))return false;
+    if(showDroppedOnly){
+      const hasDrop=s.allElements.some(e=>{
+        const dep=s.depositData&&s.depositData[e];
+        const prev=s.prevDepositData&&s.prevDepositData[e];
+        return dep&&prev&&dep.qty!=null&&prev.qty!=null&&dep.qty<prev.qty;
+      });
+      if(!hasDrop)return false;
+    }
     const visible=s.allElements.filter(e=>activeRarities.has(getRarity(e))&&(!gcFilterOn||(e in PRICE_GC)));
     if(!visible.length)return false;
     if(tab==='active') return visible.some(e=>getSectorStatus(s,e)==='active');
@@ -712,14 +728,16 @@ function buildRowHtml(s,sizeCol){
     const dep=deps[e];
     const qty=dep&&dep.qty!=null?Number(dep.qty).toLocaleString():'—';
     const qtyCol=dep?qtyColor(dep.qty):'var(--dim)';
+    const prevDep=s.prevDepositData&&s.prevDepositData[e];
+    const dropped=!!(dep&&prevDep&&dep.qty!=null&&prevDep.qty!=null&&dep.qty<prevDep.qty);
     const pc=priceColor(e);
     const unc=PRICE_UNC[e]!=null?'<span style="color:'+pc+';font-weight:600">'+PRICE_UNC[e].toLocaleString()+'</span><span class="price-label"> UNc</span>':'<span style="color:var(--dim)">—</span>';
     const gc=PRICE_GC[e]!=null?'<span style="color:var(--warn);font-weight:600">'+PRICE_GC[e]+'</span><span class="price-label"> 0Gc</span>':'';
     const pill='<span class="'+pillCls(e,m)+'" style="cursor:default">'+(m?'<s>'+e+'</s>':e)+' <span class="el-fullname">'+fn+'</span></span>';
-    return{pill,qty,qtyCol,unc,gc};
+    return{pill,qty,qtyCol,unc,gc,dropped};
   });
   const pillCol=elData.map((d,i)=>'<div class="el-col-row" data-elidx="'+i+'"><span class="el-pill-wrap" onmouseenter="hlRow(this,'+i+',true)" onmouseleave="hlRow(this,'+i+',false)">'+d.pill+'</span></div>').join('');
-  const qtyCol2=elData.map((d,i)=>'<div class="el-col-row el-col-qty" data-elidx="'+i+'" style="color:'+d.qtyCol+'">'+d.qty+'</div>').join('');
+  const qtyCol2=elData.map((d,i)=>'<div class="el-col-row el-col-qty" data-elidx="'+i+'" style="color:'+d.qtyCol+'">'+d.qty+(d.dropped?'<span style="color:#ff6b6b;font-size:1rem;font-weight:900;margin-left:4px;line-height:1">▼</span>':'')+'</div>').join('');
   const uncCol=elData.map((d,i)=>'<div class="el-col-row" data-elidx="'+i+'">'+d.unc+'</div>').join('');
   const gcCol=elData.map((d,i)=>'<div class="el-col-row" data-elidx="'+i+'">'+d.gc+'</div>').join('');
   const isNewSite=isNew(s)&&!isFullyMined(s),glowCount=s.allElements.filter(e=>isGlow(e)&&activeRarities.has(getRarity(e))&&getSectorStatus(s,e)==='active').length;
